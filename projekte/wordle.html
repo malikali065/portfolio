@@ -355,11 +355,52 @@
   <script>
     // Wörter für jede Länge
     const wordLists = {
-      3: ["tag", "see", "bus", "alt", "arm", "bad", "bei", "bio", "eis", "fan", "fit", "gut", "her", "hin", "ich", "job", "kuh", "los", "mal", "nah"],
-      4: ["haus", "auto", "brot", "dorf", "ente", "fach", "gast", "hund", "idee", "jahr", "kalt", "laut", "meer", "nase", "obst", "post", "quer", "rose", "sand", "tief"],
-      5: ["ampel", "boden", "couch", "dosen", "ebene", "faden", "gabel", "hotel", "insel", "junge", "karte", "lampe", "mauer", "nadel", "ozean", "piste", "quark", "radio", "salat", "tafel"],
-      6: ["apfel", "banane", "center", "daumen", "eltern", "flasche", "garten", "handel", "insekt", "jacke", "kamera", "lachen", "marke", "nadeln", "orange", "platte", "quelle", "rakete", "sommer", "tische"]
-    };
+    3: [
+      "tag", "see", "bus", "alt", "arm", "bad", "bei", "bio", "eis", "fan",
+      "fit", "gut", "her", "hin", "ich", "job", "kuh", "los", "mal", "nah",
+      "nee", "oma", "opa", "rot", "ruf", "ruh", "run", "sag", "sei", "sog",
+      "spa", "top", "tun", "typ", "und", "war", "weg", "wie", "win", "zah",
+      "zug", "zuv", "amo", "ali", "sus", "gag", "wow", "buh", "eck", "fix",
+      "gel", "hit", "jam", "kap", "leb", "mix", "neu", "off", "pop", "pup",
+      "ram", "rei", "rum", "sex", "spa", "tik", "ula", "ver", "weh", "yen",
+      "zeb", "abt", "akt", "amt", "art", "ass", "auf", "aus", "bal", "bar",
+      "bay", "bem", "bit", "bsp", "bus", "cia", "der", "die", "dos", "duo",
+      "ein", "emo", "eng", "eon", "ern", "euro", "exz", "fax", "fee", "fix"
+    ],
+    4: [
+      "haus", "auto", "brot", "dorf", "ente", "fach", "gast", "hund", "idee", "jahr",
+      "kalt", "laut", "meer", "nase", "obst", "post", "quer", "rose", "sand", "tief",
+      "arzt", "bahn", "chef", "date", "edel", "fein", "glas", "haut", "insel", "jung",
+      "klug", "leer", "mild", "nein", "ofen", "park", "quiz", "rast", "sohn", "tier",
+      "ufer", "voll", "wort", "zeit", "zoll", "baka", "goku", "alex", "aylin", "dude",
+      "kopf", "bein", "auge", "haar", "mund", "hand", "boot", "zelt", "wald", "berg",
+      "fluss", "wind", "atem", "gold", "kuss", "lied", "seil", "tanz", "waag", "yeti",
+      "zoom", "vase", "netz", "raum", "kick", "sekt", "raus", "tobi", "film", "clip",
+      "crew", "boss", "line", "snob", "leim", "keks", "dose", "brot", "gang", "lust"
+    ],
+    5: [
+      "ampel", "boden", "couch", "dosen", "ebene", "faden", "gabel", "hotel", "insel", "junge",
+      "karte", "lampe", "mauer", "nadel", "ozean", "piste", "quark", "radio", "salat", "tafel",
+      "luca", "ahmad", "karim", "alter", "dicht", "apfel", "banal", "chaos", "drauf", "ehren",
+      "finte", "genie", "horst", "irren", "jagen", "kette", "lilie", "mimik", "nebel", "orden",
+      "party", "quote", "recht", "schar", "tempo", "umzug", "vogel", "wirbt", "zange", "zitat",
+      "abend", "berge", "cloud", "dachs", "engel", "farbe", "geist", "haken", "insel", "joker",
+      "kasse", "licht", "macht", "nacht", "opfer", "pokal", "qualm", "rinde", "stuhl", "tante",
+      "ultra", "vater", "woche", "yacht", "zebra", "ahorn", "dampf", "eifer", "fazit", "glanz",
+      "hölle", "index", "junge", "krone", "linie", "masse", "neues", "orden", "platz", "ruhe"
+    ],
+    6: [
+      "center", "daumen", "eltern", "flasche", "garten", "handel", "insekt", "jacke", "kamera", "lachen",
+      "marke", "nadeln", "orange", "platte", "quelle", "rakete", "sommer", "tische", "apfel", "banane",
+      "digger", "bürger", "reisez", "graben", "schlau", "angeln", "beweis", "chance", "dialog", "eisern",
+      "farben", "gewinn", "hammer", "inseln", "jodler", "käufer", "läufer", "monster", "nerven", "online",
+      "portal", "quiets", "reisen", "schnur", "tassen", "urlaub", "vorzug", "werbung", "zweck", "zwiebel",
+      "abfahrt", "bunker", "casino", "drache", "ernste", "flotte", "gitter", "himmel", "inselr", "jubeln",
+      "klauen", "lächeln", "möchte", "nächte", "offizi", "proben", "quälen", "rosten", "sorgen", "tasten",
+      "umhang", "verlie", "wandeln", "xyloph", "yogurt", "zirkus", "armuts", "blende", "cooler", "donner",
+      "eintun", "fieber", "gewalt", "hörbar", "illusion", "jobben", "klippe", "läufer", "modus", "netzen"
+    ]
+  };
 
     // Spielvariablen
     let currentWordLength = 5;
