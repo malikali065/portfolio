@@ -631,7 +631,7 @@
                 <option value="länder">Länder</option>
                 <option value="städte">Städte</option>
                 <option value="essen">Essen & Getränke</option>
-                <option value="anime">Anime (Charaktere)</option>
+                <option value="anime">Anime & Charaktere</option>
             </select>
             <button id="new-game-btn">Neues Spiel</button>
         </div>
@@ -680,7 +680,7 @@
     </div>
 
     <footer>
-        <p>© 2025 Hangman-Spiel</p>
+        <p>© 2025 Hangman by Ali Malik</p>
     </footer>
 
     <script>
@@ -842,7 +842,7 @@
                 { word: "ASUNA", hint: "Kämpferin aus Sword Art Online" },
                 { word: "DEKU", hint: "Heldenschüler mit One For All" },
                 { word: "VEGETA", hint: "Stolzer Saiyajin-Prinz" },
-            
+
                 // Anime-Serien
                 { word: "NARUTO", hint: "Ninja-Anime mit Konoha als Dorf" },
                 { word: "BLEACH", hint: "Shinigami kämpfen gegen Hollows" },
@@ -854,17 +854,18 @@
                 { word: "SAO", hint: "Gefangen in einem tödlichen Spiel" },
                 { word: "MY HERO ACADEMIA", hint: "Schule für Superhelden" },
                 { word: "DEMON SLAYER", hint: "Dämonenjäger mit Katanas" },
-                { word: "FULLMETALALCHEMIST", hint: "Brüder und verbotene Alchemie" },
-                { word: "BLACKCLOVER", hint: "Magie vs. Wille eines Jungen" },
+                { word: "FULLMETAL ALCHEMIST", hint: "Brüder und verbotene Alchemie" },
+                { word: "BLACK CLOVER", hint: "Magie vs. Wille eines Jungen" },
                 { word: "DRAGON BALL", hint: "Kämpfer, Turniere und Saiyajins" },
-                { word: "FAIRYTAIL", hint: "Magische Gilde mit Herz" },
+                { word: "FAIRY TAIL", hint: "Magische Gilde mit Herz" },
                 { word: "HUNTER X HUNTER", hint: "Prüfung und Abenteuer eines Jungen" },
                 { word: "SOUL EATER", hint: "Waffen und ihre Meister" },
                 { word: "BORUTO", hint: "Nachfolger des berühmten Ninjas" },
                 { word: "VINLAND SAGA", hint: "Wikinger und Rache" },
                 { word: "RE:ZERO", hint: "Zeitschleifen in einer Fantasywelt" },
-                { word: "STEINSGATE", hint: "Zeitreisen und Wissenschaft" }
-            ]
+                { word: "STEINS GATE", hint: "Zeitreisen und Wissenschaft" }
+        ]
+
         };
 
         // DOM Elemente
@@ -911,23 +912,23 @@
         // Wort-Anzeige erstellen
         function displayWord() {
             wordDisplayEl.innerHTML = '';
-        
+            
             currentWord.split('').forEach(letter => {
                 const letterBox = document.createElement('div');
                 letterBox.classList.add('letter-box');
-        
+                
                 if (letter === ' ') {
-                    // Leere Box mit geschütztem Leerzeichen als Platzhalter
+                    // Leerzeichen automatisch anzeigen
                     letterBox.textContent = ' ';
-                    letterBox.classList.add('revealed');
-                    letterBox.style.borderBottom = 'none'; // Kein Unterstrich
+                    letterBox.style.borderBottom = 'none';
+                    letterBox.style.marginRight = '10px';
                 } else if (guessedLetters.includes(letter)) {
                     letterBox.textContent = letter;
                     letterBox.classList.add('revealed');
                 } else {
                     letterBox.textContent = '';
                 }
-        
+                
                 wordDisplayEl.appendChild(letterBox);
             });
         }
@@ -990,8 +991,8 @@
 
         // Spiel-Status überprüfen
         function checkGameStatus() {
-            const won = currentWord.split('').every(letter => guessedLetters.includes(letter));
-            
+            const won = currentWord.split('').every(letter => letter === ' ' || guessedLetters.includes(letter));
+    
             if (won) {
                 // Spiel gewonnen
                 gameActive = false;
