@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <link rel="icon" type="image/x-icon" href="../assets/universal/favicon.png">
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-medium: #1e1e1e;
+            --bg-light: #2d2d2d;
+            --text-primary: rgb(240, 240, 240);
+            --text-secondary: rgb(160, 160, 160);
+            --accent-red: #ff7070;
+            --accent-blue: #70a0ff;
+            --accent-green: #70ffa0;
+            --border-radius: 12px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background-color var(--transition-speed);
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: linear-gradient(45deg, var(--accent-red), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--bg-medium);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .menu.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        button {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-red));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-red));
+            opacity: 0.9;
+        }
+
+        .btn-option {
+            background-color: var(--bg-light);
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-option:hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-red));
+            opacity: 0.15;
+            z-index: -1;
+            border-radius: var(--border-radius);
+        }
+
+        .btn-selected {
+            border: 2px solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(45deg, var(--accent-blue), var(--accent-red));
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            margin: 1rem 0;
+        }
+
+        .option-group-title {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .grid-options {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .grid-option {
+            padding: 10px 15px;
+            flex: 1;
+            text-align: center;
+            max-width: 80px;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .cell {
+            background-color: var(--bg-dark);
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .cell svg {
+            width: 70%;
+            height: 70%;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            gap: 1rem;
+        }
+
+        .nav-button {
+            padding: 10px 15px;
+            flex: 1;
+        }
+
+        .player-info {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            height: 1.2rem;
+        }
+
+        .player-x {
+            color: var(--accent-red);
+        }
+
+        .player-o {
+            color: var(--accent-blue);
+        }
+
+        .stats-item {
+            background-color: var(--bg-light);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            transition: transform var(--transition-speed);
+        }
+
+        .stats-item:hover {
+            transform: translateX(5px);
+        }
+
+        .stats-value {
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-speed);
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: var(--bg-medium);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            transform: translateY(-50px);
+            transition: transform var(--transition-speed);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .modal-text {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight {
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes draw {
+            0% {
+                stroke-dashoffset: 1000;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .draw-circle {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 1s ease forwards;
+        }
+
+        .draw-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 0.7s ease forwards;
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .grid-options {
+                flex-wrap: wrap;
+            }
+
+            .grid-option {
+                max-width: none;
+                min-width: 60px;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic-Tac-Toe</h1>
+    
+    <div class="container">
+        <!-- Hauptmenü -->
+        <div id="main-menu" class="menu active">
+            <h2 class="option-group-title">Spielmodus wählen</h2>
+            <div class="option-group">
+                <button id="vs-player" class="btn-option btn-selected">1 vs 1</button>
+                <button id="vs-ai" class="btn-option">1 vs KI</button>
+            </div>
+            
+            <h2 class="option-group-title">Spielfeldgröße wählen</h2>
+            <div class="option-group grid-options">
+                <button id="size-3" class="btn-option grid-option btn-selected">3×3</button>
+                <button id="size-4" class="btn-option grid-option">4×4</button>
+                <button id="size-5" class="btn-option grid-option">5×5</button>
+            </div>
+            
+            <button id="start-game" class="btn-primary">Spiel starten</button>
+            <button id="show-stats" class="btn-option">Statistiken anzeigen</button>
+        </div>
+        
+        <!-- Spielmenü -->
+        <div id="game-menu" class="menu">
+            <div class="player-info" id="player-info"></div>
+            <div id="game-board"></div>
+            <div class="nav-buttons">
+                <button id="back-to-main" class="nav-button">Hauptmenü</button>
+                <button id="restart-game" class="nav-button">Neues Spiel</button>
+            </div>
+        </div>
+        
+        <!-- Statistik-Menü -->
+        <div id="stats-menu" class="menu">
+            <h2 class="option-group-title">Spielstatistiken</h2>
+            <div id="stats-content">
+                <!-- Hier werden die Statistiken eingefügt -->
+            </div>
+            <button id="back-from-stats" class="btn-primary">Zurück zum Hauptmenü</button>
+        </div>
+    </div>
+    
+    <!-- Ergebnismodal -->
+    <div id="result-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Spielende</h2>
+            <p class="modal-text" id="result-text">Ergebnis hier</p>
+            <button id="modal-close" class="btn-primary">Weiter</button>
+        </div>
+    </div>
+
+    <script>
+        // Spielvariablen
+        const state = {
+            gameMode: 'player', // 'player' oder 'ai'
+            boardSize: 3,
+            currentPlayer: 'X',
+            gameBoard: [],
+            gameActive: false,
+            gameStats: {
+                totalGames: 0,
+                playerXWins: 0,
+                playerOWins: 0,
+                aiWins: 0,
+                draws: 0,
+                size3Games: 0,
+                size4Games: 0,
+                size5Games: 0
+            }
+        };
+
+        // DOM-Elemente
+        const mainMenu = document.getElementById('main-menu');
+        const gameMenu = document.getElementById('game-menu');
+        const statsMenu = document.getElementById('stats-menu');
+        const playerInfo = document.getElementById('player-info');
+        const gameBoard = document.getElementById('game-board');
+        const resultModal = document.getElementById('result-modal');
+        const resultText = document.getElementById('result-text');
+        const statsContent = document.getElementById('stats-content');
+
+        // Event Listeners für das Hauptmenü
+        document.getElementById('vs-player').addEventListener('click', () => selectGameMode('player'));
+        document.getElementById('vs-ai').addEventListener('click', () => selectGameMode('ai'));
+        document.getElementById('size-3').addEventListener('click', () => selectBoardSize(3));
+        document.getElementById('size-4').addEventListener('click', () => selectBoardSize(4));
+        document.getElementById('size-5').addEventListener('click', () => selectBoardSize(5));
+        document.getElementById('start-game').addEventListener('click', startGame);
+        document.getElementById('show-stats').addEventListener('click', showStats);
+
+        // Event Listeners für das Spielmenü
+        document.getElementById('back-to-main').addEventListener('click', showMainMenu);
+        document.getElementById('restart-game').addEventListener('click', restartGame);
+
+        // Event Listeners für das Statistik-Menü
+        document.getElementById('back-from-stats').addEventListener('click', showMainMenu);
+
+        // Event Listeners für das Modal
+        document.getElementById('modal-close').addEventListener('click', closeModal);
+
+        // Spielmodus auswählen
+        function selectGameMode(mode) {
+            state.gameMode = mode;
+            document.getElementById('vs-player').classList.toggle('btn-selected', mode === 'player');
+            document.getElementById('vs-ai').classList.toggle('btn-selected', mode === 'ai');
+        }
+
+        // Spielfeldgröße auswählen
+        function selectBoardSize(size) {
+            state.boardSize = size;
+            document.getElementById('size-3').classList.toggle('btn-selected', size === 3);
+            document.getElementById('size-4').classList.toggle('btn-selected', size === 4);
+            document.getElementById('size-5').classList.toggle('btn-selected', size === 5);
+        }
+
+        // Spiel starten
+        function startGame() {
+            // Spielstatistik für gewählte Größe erhöhen
+            if (state.boardSize === 3) state.gameStats.size3Games++;
+            else if (state.boardSize === 4) state.gameStats.size4Games++;
+            else if (state.boardSize === 5) state.gameStats.size5Games++;
+            
+            state.gameStats.totalGames++;
+            saveStats();
+            
+            // Spielfeld initialisieren
+            initializeGame();
+            
+            // Menüs wechseln
+            switchMenu(mainMenu, gameMenu);
+            
+            // Hintergrundfarbe für aktuellen Spieler anpassen
+            updateBackgroundForPlayer();
+        }
+
+        // Spielstatistiken anzeigen
+        function showStats() {
+            loadStats();
+            updateStatsDisplay();
+            switchMenu(mainMenu, statsMenu);
+        }
+
+        // Statistikanzeige aktualisieren
+        function updateStatsDisplay() {
+            statsContent.innerHTML = `
+                <div class="stats-item">
+                    <span>Gespielte Spiele:</span>
+                    <span class="stats-value">${state.gameStats.totalGames}</span>
+                </div>
+                <div class="stats-item">
+                    <span>Spieler X Siege:</span>
+                    <span class="stats-value">${state.gameStats.playerXWins}</span>
+                </div>
+                <div class="stats-item">
+                    <span>Spieler O Siege:</span>
+                    <span class="stats-value">${state.gameStats.playerOWins}</span>
+                </div>
+                <div class="stats-item">
+                    <span>KI Siege:</span>
+                    <span class="stats-value">${state.gameStats.aiWins}</span>
+                </div>
+                <div class="stats-item">
+                    <span>Unentschieden:</span>
+                    <span class="stats-value">${state.gameStats.draws}</span>
+                </div>
+                <div class="stats-item">
+                    <span>3×3 Spiele:</span>
+                    <span class="stats-value">${state.gameStats.size3Games}</span>
+                </div>
+                <div class="stats-item">
+                    <span>4×4 Spiele:</span>
+                    <span class="stats-value">${state.gameStats.size4Games}</span>
+                </div>
+                <div class="stats-item">
+                    <span>5×5 Spiele:</span>
+                    <span class="stats-value">${state.gameStats.size5Games}</span>
+                </div>
+            `;
+        }
+
+        // Zum Hauptmenü zurückkehren
+        function showMainMenu() {
+            // Zurück zum Hauptmenü gehen
+            if (gameMenu.classList.contains('active')) {
+                switchMenu(gameMenu, mainMenu);
+            } else if (statsMenu.classList.contains('active')) {
+                switchMenu(statsMenu, mainMenu);
+            }
+            
+            // Hintergrundfarbe zurücksetzen
+            document.body.style.backgroundColor = 'var(--bg-dark)';
+        }
+
+        // Spiel neu starten
+        function restartGame() {
+            state.gameStats.totalGames++;
+            
+            // Größenstatistik aktualisieren
+            if (state.boardSize === 3) state.gameStats.size3Games++;
+            else if (state.boardSize === 4) state.gameStats.size4Games++;
+            else if (state.boardSize === 5) state.gameStats.size5Games++;
+            
+            saveStats();
+            initializeGame();
+        }
+
+        // Spiel initialisieren
+        function initializeGame() {
+            state.gameActive = true;
+            state.currentPlayer = 'X';
+            state.gameBoard = Array(state.boardSize).fill().map(() => Array(state.boardSize).fill(''));
+            
+            // Spieleranzeige aktualisieren
+            updatePlayerInfo();
+            
+            // Spielbrett erstellen
+            createGameBoard();
+        }
+
+        // Spieleranzeige aktualisieren
+        function updatePlayerInfo() {
+            if (state.gameMode === 'player') {
+                playerInfo.textContent = `Spieler ${state.currentPlayer} ist am Zug`;
+            } else {
+                playerInfo.textContent = state.currentPlayer === 'X' ? 'Du bist am Zug' : 'KI denkt nach...';
+            }
+            
+            playerInfo.className = 'player-info';
+            playerInfo.classList.add(state.currentPlayer === 'X' ? 'player-x' : 'player-o');
+        }
+
+        // Spielfeld erstellen
+        function createGameBoard() {
+            gameBoard.innerHTML = '';
+            gameBoard.style.gridTemplateColumns = `repeat(${state.boardSize}, 1fr)`;
+            
+            for (let row = 0; row < state.boardSize; row++) {
+                for (let col = 0; col < state.boardSize; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    gameBoard.appendChild(cell);
+                }
+            }
+        }
+
+        // Felderklick verarbeiten
+        function handleCellClick(row, col) {
+            // Wenn das Spiel nicht aktiv ist oder das Feld bereits belegt ist
+            if (!state.gameActive || state.gameBoard[row][col] !== '') return;
+            
+            // Wenn es der Zug der KI ist und wir im KI-Modus sind
+            if (state.gameMode === 'ai' && state.currentPlayer === 'O') return;
+            
+            makeMove(row, col);
+            
+            // Wenn KI-Modus und Spiel noch aktiv, KI-Zug ausführen
+            if (state.gameMode === 'ai' && state.gameActive && state.currentPlayer === 'O') {
+                setTimeout(makeAIMove, 700);
+            }
+        }
+
+        // Spielzug ausführen
+        function makeMove(row, col) {
+            // Feld markieren
+            state.gameBoard[row][col] = state.currentPlayer;
+            
+            // Feld visuell aktualisieren
+            const cell = gameBoard.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (state.currentPlayer === 'X') {
+                drawX(cell);
+            } else {
+                drawO(cell);
+            }
+            
+            // Spielstatus prüfen
+            checkGameStatus(row, col);
+            
+            // Spieler wechseln, wenn das Spiel noch aktiv ist
+            if (state.gameActive) {
+                state.currentPlayer = state.currentPlayer === 'X' ? 'O' : 'X';
+                updatePlayerInfo();
+                updateBackgroundForPlayer();
+            }
+        }
+
+        // X zeichnen
+        function drawX(cell) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            
+            const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line1.setAttribute('x1', '20');
+            line1.setAttribute('y1', '20');
+            line1.setAttribute('x2', '80');
+            line1.setAttribute('y2', '80');
+            line1.setAttribute('stroke', 'var(--accent-red)');
+            line1.setAttribute('stroke-width', '8');
+            line1.setAttribute('stroke-linecap', 'round');
+            line1.classList.add('draw-line');
+            
+            const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line2.setAttribute('x1', '80');
+            line2.setAttribute('y1', '20');
+            line2.setAttribute('x2', '20');
+            line2.setAttribute('y2', '80');
+            line2.setAttribute('stroke', 'var(--accent-red)');
+            line2.setAttribute('stroke-width', '8');
+            line2.setAttribute('stroke-linecap', 'round');
+            line2.classList.add('draw-line');
+            
+            svg.appendChild(line1);
+            svg.appendChild(line2);
+            cell.appendChild(svg);
+        }
+
+        // O zeichnen
+        function drawO(cell) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', '50');
+            circle.setAttribute('cy', '50');
+            circle.setAttribute('r', '30');
+            circle.setAttribute('fill', 'none');
+            circle.setAttribute('stroke', 'var(--accent-blue)');
+            circle.setAttribute('stroke-width', '8');
+            circle.setAttribute('stroke-linecap', 'round');
+            circle.classList.add('draw-circle');
+            
+            svg.appendChild(circle);
+            cell.appendChild(svg);
+        }
+
+        // KI-Zug
+        function makeAIMove() {
+            if (!state.gameActive) return;
+
+            // 1. Prüfen, ob KI gewinnen kann
+            const winMove = findWinningMove('O');
+            if (winMove) {
+                makeMove(winMove.row, winMove.col);
+                return;
+            }
+
+            // 2. Blockieren, wenn Spieler gewinnen könnte
+            const blockMove = findWinningMove('X');
+            if (blockMove) {
+                makeMove(blockMove.row, blockMove.col);
+                return;
+            }
+
+            // 3. Zentrum nehmen, wenn frei (bei 3x3)
+            if (state.boardSize === 3) {
+                const center = Math.floor(state.boardSize / 2);
+                if (state.gameBoard[center][center] === '') {
+                    makeMove(center, center);
+                    return;
+                }
+            }
+
+            // 4. Zufälliges freies Feld wählen
+            const emptyPositions = [];
+            for (let r = 0; r < state.boardSize; r++) {
+                for (let c = 0; c < state.boardSize; c++) {
+                    if (state.gameBoard[r][c] === '') {
+                        emptyPositions.push({row: r, col: c});
+                    }
+                }
+            }
+
+            if (emptyPositions.length > 0) {
+                const randomPosition = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
+                makeMove(randomPosition.row, randomPosition.col);
+            }
+        }
+
+        // Sucht einen Zug, der zum Sieg führen würde
+        function findWinningMove(player) {
+            // Für jedes freie Feld testen, ob es bei Besetzung zum Sieg führen würde
+            for (let r = 0; r < state.boardSize; r++) {
+                for (let c = 0; c < state.boardSize; c++) {
+                    if (state.gameBoard[r][c] === '') {
+                        // Temporär setzen und prüfen
+                        state.gameBoard[r][c] = player;
+                        
+                        if (checkWin(r, c, false)) {
+                            // Zurücksetzen und Gewinnzug zurückgeben
+                            state.gameBoard[r][c] = '';
+                            return {row: r, col: c};
+                        }
+                        
+                        // Zurücksetzen für weitere Tests
+                        state.gameBoard[r][c] = '';
+                    }
+                }
+            }
+            
+            return null; // Kein Gewinnzug gefunden
+        }
+
+        // Spielstatus prüfen
+        function checkGameStatus(row, col) {
+            // Sieg prüfen
+            if (checkWin(row, col, true)) {
+                endGame(`${state.currentPlayer === 'X' ? 'Spieler X' : (state.gameMode === 'ai' ? 'KI' : 'Spieler O')} hat gewonnen!`);
+                
+                // Statistik aktualisieren
+                if (state.currentPlayer === 'X') {
+                    state.gameStats.playerXWins++;
+                } else if (state.gameMode === 'ai') {
+                    state.gameStats.aiWins++;
+                } else {
+                    state.gameStats.playerOWins++;
+                }
+                
+                saveStats();
+                return;
+            }
+            
+            // Unentschieden prüfen (alle Felder belegt)
+            let isDraw = true;
+            for (let r = 0; r < state.boardSize; r++) {
+                for (let c = 0; c < state.boardSize; c++) {
+                    if (state.gameBoard[r][c] === '') {
+                        isDraw = false;
+                        break;
+                    }
+                }
+                if (!isDraw) break;
+            }
+            
+            if (isDraw) {
+                endGame('Unentschieden!');
+                state.gameStats.draws++;
+                saveStats();
+            }
+        }
+
+        // Siegbedingung prüfen
+        function checkWin(row, col, isGameEnd) {
+            const player = state.gameBoard[row][col];
+            const size = state.boardSize;
+            
+            // Horizontale Prüfung
+            let win = true;
+            for (let c = 0; c < size; c++) {
+                if (state.gameBoard[row][c] !== player) {
+                    win = false;
+                    break;
+                }
+            }
+            if (win) return true;
+            
+            // Vertikale Prüfung
+            win = true;
+            for (let r = 0; r < size; r++) {
+                if (state.gameBoard[r][col] !== player) {
+                    win = false;
+                    break;
+                }
+            }
+            if (win) return true;
+            
+            // Diagonale (nur prüfen, wenn der Zug auf einer Diagonale liegt)
+            if (row === col) { // Hauptdiagonale
+                win = true;
+                for (let i = 0; i < size; i++) {
+                    if (state.gameBoard[i][i] !== player) {
+                        win = false;
+                        break;
+                    }
+                }
+                if (win) return true;
+            }
+            
+            if (row + col === size - 1) { // Nebendiagonale
+                win = true;
+                for (let i = 0; i < size; i++) {
+                    if (state.gameBoard[i][size - 1 - i] !== player) {
+                        win = false;
+                        break;
+                    }
+                }
+                if (win) return true;
+            }
+            
+            return false;
+        }
+
+        // Spiel beenden
+        function endGame(message) {
+            state.gameActive = false;
+            resultText.textContent = message;
+            resultModal.classList.add('active');
+        }
+
+        // Modal schließen
+        function closeModal() {
+            resultModal.classList.remove('active');
+        }
+
+        // Menüwechsel mit Animation
+        function switchMenu(fromMenu, toMenu) {
+            fromMenu.classList.remove('active');
+            setTimeout(() => {
+                toMenu.classList.add('active');
+            }, 300);
+        }
+
+        // Spieler-Hintergrundfarbe aktualisieren
+        function updateBackgroundForPlayer() {
+            if (state.currentPlayer === 'X') {
+                document.body.style.backgroundColor = 'rgba(255, 112, 112, 0.05)'; // Leicht rötlich
+            } else {
+                document.body.style.backgroundColor = 'rgba(112, 160, 255, 0.05)'; // Leicht bläulich
+            }
+        }
+
+        // Statistiken speichern
+        function saveStats() {
+            localStorage.setItem('tictactoeStats', JSON.stringify(state.gameStats));
+        }
+
+        // Statistiken laden
+        function loadStats() {
+            const savedStats = localStorage.getItem('tictactoeStats');
+            if (savedStats) {
+                state.gameStats = JSON.parse(savedStats);
+            }
+        }
+
+        // Beim Laden der Seite
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+        });
+    </script>
+</body>
+<footer>
+    <p>&copy; 2025 Made with &#9829; by Ali Malik</p>
+</footer>
+</html>
