@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MotoElite | Premium Motorräder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="../assets/universal/favicon.png">
+    <style>
+        :root {
+            --primary-color: #0071e3;
+            --dark-bg: #121212;
+            --darker-bg: #0a0a0a;
+            --card-bg: #1e1e1e;
+            --card-hover: #2a2a2a;
+            --text-color: #f5f5f7;
+            --text-secondary: #86868b;
+            --success-color: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--darker-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary-color), #00c6ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .cart-icon, .menu-toggle {
+            color: var(--text-color);
+            font-size: 22px;
+            margin-left: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .cart-icon:hover, .menu-toggle:hover {
+            color: var(--primary-color);
+            transform: scale(1.1);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 12px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0);
+        }
+
+        .cart-badge.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .menu-toggle {
+            display: none;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/api/placeholder/1200/800') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 20px;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease forwards 0.3s;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease forwards 0.6s;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease forwards 0.9s;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 113, 227, 0.4);
+        }
+
+        .btn-transparent {
+            background-color: transparent;
+            border: 2px solid var(--text-color);
+            margin-left: 15px;
+        }
+
+        .btn-transparent:hover {
+            background-color: var(--text-color);
+            color: var(--dark-bg);
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards 1.2s, bounce 2s infinite 1.2s;
+        }
+
+        .hero-scroll i {
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        /* About Section */
+        .about {
+            padding: 120px 0;
+            background-color: var(--darker-bg);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            display: inline-block;
+            position: relative;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .section-title:hover h2::after {
+            width: 100px;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .about-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .about-icon {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .about-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .about-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Products Section */
+        .products {
+            padding: 120px 0;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 50px;
+            gap: 15px;
+        }
+
+        .filter-group {
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .filter-select {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid #333;
+            font-size: 16px;
+            min-width: 200px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background-color: var(--card-hover);
+        }
+
+        .product-img {
+            height: 200px;
+            width: 100%;
+            object-fit: contain;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .product-name::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .product-card:hover .product-name::after {
+            width: 50px;
+        }
+
+        .product-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .meta-item i {
+            color: var(--primary-color);
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .meta-item span {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .product-btn {
+            padding: 8px 15px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 900px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: var(--text-color);
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--primary-color);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .modal-body {
+                flex-direction: row;
+            }
+        }
+
+        .modal-image {
+            flex: 1;
+            min-height: 300px;
+            background-position: center;
+            background-size: contain;
+            background-repeat: no-repeat; /* verhindert die Wiederholung */
+        }
+
+        .modal-info {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .modal-subtitle {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .modal-specs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .spec-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .spec-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .spec-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-description {
+            margin-bottom: 30px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .modal-description::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .modal-description::-webkit-scrollbar-thumb {
+            background-color: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        .modal-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Reviews Section */
+        .reviews {
+            padding: 120px 0;
+            background-color: var(--darker-bg);
+        }
+
+        .reviews-slider {
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+            max-width: 1000px;
+        }
+
+        .reviews-track {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .review-slide {
+            flex: 0 0 100%;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 100%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .review-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .review-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .review-author h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .review-author p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .review-stars {
+            color: gold;
+            margin-bottom: 15px;
+        }
+
+        .review-text {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-color);
+        }
+
+        .review-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 15px;
+        }
+
+        .review-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .review-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .review-indicators {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .review-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .review-indicator.active {
+            background-color: var(--primary-color);
+            transform: scale(1.2);
+        }
+
+        /* Location Section */
+        .location {
+            padding: 120px 0;
+        }
+
+        .location-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .location-content {
+                flex-direction: row;
+            }
+        }
+
+        .location-info {
+            flex: 1;
+        }
+
+        .location-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .location-address {
+            margin-bottom: 30px;
+        }
+
+        .location-address p {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .location-hours {
+            margin-bottom: 30px;
+        }
+
+        .location-hours h4 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .hours-list {
+            list-style: none;
+        }
+
+        .hours-list li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .location-map {
+            flex: 1;
+            min-height: 400px;
+            background-color: #ffffff00;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            border-radius: 5%;
+        }
+
+        .location-map img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 5%;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--darker-bg);
+            padding: 60px 0 30px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-col h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon i {
+            color: var(--text-color);
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .social-icon:hover i {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 30px;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0) translateX(-50%);
+            }
+            40% {
+                transform: translateY(-20px) translateX(-50%);
+            }
+            60% {
+                transform: translateY(-10px) translateX(-50%);
+            }
+        }
+
+        /* Cart Sidebar */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background-color: var(--card-bg);
+            z-index: 1100;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-sidebar.active {
+            right: 0;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .cart-title {
+            font-size: 1.5rem;
+        }
+
+        .cart-close {
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cart-close:hover {
+            color: var(--primary-color);
+            transform: rotate(90deg);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-item-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .cart-item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-price {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .quantity-btn {
+            width: 25px;
+            height: 25px;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        .quantity-input {
+            width: 30px;
+            height: 25px;
+            text-align: center;
+            margin: 0 5px;
+            background-color: transparent;
+            border: none;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .cart-item-remove {
+            color: #ff4d4d;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .cart-item-remove:hover {
+            color: #ff0000;
+            transform: scale(1.2);
+        }
+
+        .cart-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .cart-total-label {
+            font-size: 1.2rem;
+        }
+
+        .cart-total-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .cart-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .cart-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--success-color);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            transform: translateY(100px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .toast i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media screen and (max-width: 991px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            nav {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: var(--darker-bg);
+                padding: 20px;
+                opacity: 0;
+                transform: translateY(-20px);
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+
+            nav.active {
+                opacity: 1;
+                transform: translateY(0);
+                visibility: visible;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li {
+                margin: 10px 0;
+                margin-left: 0;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .modal-body {
+                flex-direction: column;
+            }
+
+            .modal-image {
+                min-height: 200px;
+            }
+
+            .modal-info {
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+            }
+
+            .modal-price {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media screen and (max-width: 576px) {
+            .header-container {
+                padding: 10px 15px;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-content {
+                padding: 0 15px;
+            }
+
+            .btn {
+                display: block;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+
+            .btn-transparent {
+                margin-left: 0;
+            }
+
+            .filter-group {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .review-slide {
+                padding: 20px;
+            }
+
+            .cart-sidebar {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="header-container container">
+            <div class="logo">MotoElite</div>
+            <nav id="nav">
+                <ul>
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#about">Über uns</a></li>
+                    <li><a href="#products">Motorräder</a></li>
+                    <li><a href="#reviews">Rezensionen</a></li>
+                    <li><a href="#location">Standort</a></li>
+                    <li><a href="#contact">Kontakt</a></li>
+                </ul>
+            </nav>
+            <div class="header-icons">
+                <div class="cart-icon" id="cartIcon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </div>
+                <div class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <h1>Premium Motorräder für echte Enthusiasten</h1>
+            <p>Entdecke unsere sorgfältig ausgewählte Kollektion an Hochleistungsmotorrädern von Weltklasse-Herstellern.</p>
+            <a href="#products" class="btn">Entdecke jetzt</a>
+            <a href="#about" class="btn btn-transparent">Erfahre mehr</a>
+        </div>
+        <div class="hero-scroll" id="heroScroll">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>Unser Konzept</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h3>Premium Qualität</h3>
+                    <p>Wir bieten nur die besten Motorräder von renommierten Herstellern an, die höchsten Qualitätsstandards entsprechen.</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>Experten-Service</h3>
+                    <p>Unser Team aus erfahrenen Technikern sorgt für perfekte Wartung und Anpassung jedes Motorrads.</p>
+                </div>
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3>Leidenschaft</h3>
+                    <p>Unsere Liebe zum Motorradfahren treibt uns an, dir nur das Beste Erlebnis und die beste Beratung zu bieten.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products" id="products">
+        <div class="container">
+            <div class="section-title">
+                <h2>Unsere Motorräder</h2>
+            </div>
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="brandFilter">Marke</label>
+                    <select id="brandFilter" class="filter-select">
+                        <option value="all">Alle Marken</option>
+                        <option value="ducati">Ducati</option>
+                        <option value="bmw">BMW</option>
+                        <option value="honda">Honda</option>
+                        <option value="kawasaki">Kawasaki</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="ccFilter">Hubraum</label>
+                    <select id="ccFilter" class="filter-select">
+                        <option value="all">Alle Hubraumklassen</option>
+                        <option value="600">Bis 600cc</option>
+                        <option value="1000">601cc - 1000cc</option>
+                        <option value="1001">Über 1000cc</option>
+                    </select>
+                </div>
+            </div>
+            <div class="product-grid" id="productGrid">
+                <!-- Product cards will be added here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="reviews" id="reviews">
+        <div class="container">
+            <div class="section-title">
+                <h2>Kundenbewertungen</h2>
+            </div>
+            <div class="reviews-slider">
+                <div class="reviews-track" id="reviewsTrack">
+                    <div class="review-slide">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="../assets/projekte/MotoElite/pfp1.png" alt="Kunde">
+                            </div>
+                            <div class="review-author">
+                                <h3>Ali Malik</h3>
+                                <p>BMW S1000RR Besitzer</p>
+                            </div>
+                        </div>
+                        <div class="review-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="review-text">
+                            <p>Absolut begeistert von meiner neuen BMW S1000RR! Die Beratung war erstklassig und der gesamte Kaufprozess verlief reibungslos. Das Team von MotoElite hat sich wirklich Zeit für mich genommen und alle meine Fragen beantwortet. Empfehle ich zu 100% weiter!</p>
+                        </div>
+                    </div>
+                    <div class="review-slide">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="../assets/projekte/MotoElite/pfp2.jpg" alt="Kunde">
+                            </div>
+                            <div class="review-author">
+                                <h3>Aylin Seibold</h3>
+                                <p>Ducati Panigale V4 Besitzerin</p>
+                            </div>
+                        </div>
+                        <div class="review-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <div class="review-text">
+                            <p>Meine Ducati Panigale V4 ist ein Traum auf zwei Rädern! Der Service bei MotoElite ist außergewöhnlich - von der ersten Beratung bis zur Auslieferung. Die regelmäßigen Check-ups sind schnell und professionell. Das ist keine gewöhnliche Werkstatt, sondern echte Motorrad-Enthusiasten!</p>
+                        </div>
+                    </div>
+                    <div class="review-slide">
+                        <div class="review-header">
+                            <div class="review-avatar">
+                                <img src="../assets/projekte/MotoElite/pfp3.png" alt="Kunde">
+                            </div>
+                            <div class="review-author">
+                                <h3>Alexander der Kleine</h3>
+                                <p>Kawasaki Ninja H2 Besitzer</p>
+                            </div>
+                        </div>
+                        <div class="review-stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="review-text">
+                            <p>Die Kawasaki Ninja H2 war schon immer mein Traumbike, und dank MotoElite konnte ich mir diesen Traum erfüllen. Die Finanzierungsoptionen waren flexibel und auf meine Bedürfnisse zugeschnitten. Jedes Mal, wenn ich in die Werkstatt komme, werde ich wie ein Teil der Familie behandelt!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="review-controls">
+                    <div class="review-btn" id="reviewPrev">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="review-btn" id="reviewNext">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                <div class="review-indicators" id="reviewIndicators">
+                    <div class="review-indicator active" data-index="0"></div>
+                    <div class="review-indicator" data-index="1"></div>
+                    <div class="review-indicator" data-index="2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Section -->
+    <section class="location" id="location">
+        <div class="container">
+            <div class="section-title">
+                <h2>Wo Du uns findest</h2>
+            </div>
+            <div class="location-content">
+                <div class="location-info">
+                    <h3>Besuche unseren Showroom</h3>
+                    <div class="location-address">
+                        <p><i class="fas fa-map-marker-alt"></i> Motorradstraße 123, 45678 Ludwigshafen am Rhein</p>
+                        <p><i class="fas fa-phone"></i> +49 12 3456789</p>
+                        <p><i class="fas fa-envelope"></i> info@motoelite.de</p>
+                    </div>
+                    <div class="location-hours">
+                        <h4>Öffnungszeiten</h4>
+                        <ul class="hours-list">
+                            <li><span>Montag - Freitag</span> <span>9:00 - 20:00</span></li>
+                            <li><span>Samstag</span> <span>10:00 - 16:00</span></li>
+                            <li><span>Sonntag</span> <span>geschlossen</span></li>
+                        </ul>
+                    </div>
+                    <a href="#contact" class="btn">Kontaktiere uns</a>
+                </div>
+                <div class="location-map">
+                    <img src="../assets/projekte/MotoElite/map.png" alt="Standortkarte">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>MotoElite</h3>
+                    <p>Premium Motorräder für echte Enthusiasten. Wir bieten exklusive Motorräder der Spitzenklasse und erstklassigen Service.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Navigation</h3>
+                    <ul class="footer-links">
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#about">Über uns</a></li>
+                        <li><a href="#products">Motorräder</a></li>
+                        <li><a href="#reviews">Rezensionen</a></li>
+                        <li><a href="#location">Standort</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Informationen</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Lieferung & Versand</a></li>
+                        <li><a href="#">Garantie</a></li>
+                        <li><a href="#">Datenschutz</a></li>
+                        <li><a href="#">AGB</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Newsletter</h3>
+                    <p>Abonniere unseren Newsletter für die neuesten Updates und Angebote.</p>
+                    <form class="footer-form">
+                        <input type="email" placeholder="Deine E-Mail-Adresse" required>
+                        <button type="submit" class="btn">Abonnieren</button>
+                    </form>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 MotoElite GmbH & Ali Malik. Alle Rechte vorbehalten.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be inserted dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3 class="cart-title">Dein Warenkorb</h3>
+            <div class="cart-close" id="cartClose">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items will be displayed here -->
+            <div class="empty-cart-message">Dein Warenkorb ist leer.</div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span class="cart-total-label">Versand:</span>
+                <span class="cart-total-price" id="cartShipping" title="15% des Originalpreises">0,00 €</span>
+            </div>
+            <div class="cart-total">
+                <span class="cart-total-label">Gesamtsumme:</span>
+                <span class="cart-total-price" id="cartTotal">0,00 €</span>
+            </div>
+            <div class="cart-buttons">
+                <button class="btn cart-btn">Zur Kasse</button>
+                <button class="btn btn-transparent cart-btn" id="clearCart">Leeren</button>
+            </div>
+        </div>        
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Produkt wurde zum Warenkorb hinzugefügt!</span>
+    </div>
+
+    <script>
+        // Product data
+        const products = [
+            {
+                id: 1,
+                name: "Ducati Panigale V4",
+                brand: "ducati",
+                cc: 1103,
+                price: 29990,
+                year: 2025,
+                hp: 214,
+                acceleration: 2.8,
+                description: "Die Ducati Panigale V4 ist ein Superbike mit Straßenzulassung, das von Ducati hergestellt wird. Es ist mit einem V4-Motor ausgestattet, der von Ducatis MotoGP-Rennmaschine abgeleitet ist. Mit seiner beeindruckenden Leistung und dem italienischen Design ist es ein Traummorotrad für viele Enthusiasten.",
+                image: "../assets/projekte/MotoElite/DucatiPanigaleV4.png",
+                badge: "NEU"
+            },
+            {
+                id: 2,
+                name: "BMW S1000RR",
+                brand: "bmw",
+                cc: 999,
+                price: 19990,
+                year: 2025,
+                hp: 205,
+                acceleration: 3.1,
+                description: "Die BMW S1000RR ist ein Supersport-Motorrad der Kategorie Superbike des deutschen Fahrzeugherstellers BMW. Mit Spitzentechnologie aus dem Rennsport und einer perfekten Balance aus Leistung und Kontrolle ist dieses Bike der ultimative Beweis für BMWs Ingenieurskunst.",
+                image: "../assets/projekte/MotoElite/BMWS1000RR.png"
+            },
+            {
+                id: 3,
+                name: "Honda CBR1000RR-R Fireblade",
+                brand: "honda",
+                cc: 1000,
+                price: 22900,
+                year: 2025,
+                hp: 217,
+                acceleration: 2.9,
+                description: "Die Honda CBR1000RR-R Fireblade ist ein Supersport-Motorrad von Honda. Entwickelt mit der DNA aus der MotoGP, bietet diese Maschine höchste Leistung und Präzision. Mit ihrer fortschrittlichen Elektronik und aerodynamischen Verkleidung ist sie für Rennstrecke und Straße gleichermaßen optimiert.",
+                image: "../assets/projekte/MotoElite/HondaCBR1000RR-R_Fireblade.png"
+            },
+            {
+                id: 4,
+                name: "Kawasaki Ninja H3R",
+                brand: "kawasaki",
+                cc: 998,
+                price: 33000,
+                year: 2025,
+                hp: 326,
+                acceleration: 3.8,
+                description: "Die Kawasaki Ninja H2R ist ein Supersport-Motorrad mit Kompressor-Aufladung. Sie vereint unglaubliche Beschleunigung mit stabilem Fahrverhalten und ist ein technisches Meisterwerk. Mit ihrem einzigartigen Sound und dem charakteristischen Design setzt sie neue Maßstäbe in der Motorradwelt.",
+                image: "../assets/projekte/MotoElite/KawasakiNinjaH2R.png",
+                badge: "LIMITIERT"
+            }
+        ];
+
+        // DOM Elements
+        const header = document.getElementById('header');
+        const menuToggle = document.getElementById('menuToggle');
+        const nav = document.getElementById('nav');
+        const heroScroll = document.getElementById('heroScroll');
+        const productGrid = document.getElementById('productGrid');
+        const brandFilter = document.getElementById('brandFilter');
+        const ccFilter = document.getElementById('ccFilter');
+        const productModal = document.getElementById('productModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalBody = document.getElementById('modalBody');
+        const reviewsTrack = document.getElementById('reviewsTrack');
+        const reviewPrev = document.getElementById('reviewPrev');
+        const reviewNext = document.getElementById('reviewNext');
+        const reviewIndicators = document.getElementById('reviewIndicators');
+        const cartIcon = document.getElementById('cartIcon');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartClose = document.getElementById('cartClose');
+        const cartItems = document.getElementById('cartItems');
+        const cartBadge = document.getElementById('cartBadge');
+        const cartTotal = document.getElementById('cartTotal');
+        const clearCart = document.getElementById('clearCart');
+        const overlay = document.getElementById('overlay');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+
+        // Global variables
+        let cart = [];
+        let currentReview = 0;
+        const totalReviews = 3;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts(products);
+            updateCartBadge();
+            setupEventListeners();
+        });
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Scroll event for header
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // Menu toggle
+            menuToggle.addEventListener('click', function() {
+                nav.classList.toggle('active');
+            });
+
+            // Hero scroll button
+            heroScroll.addEventListener('click', function() {
+                document.querySelector('#about').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Filters
+            brandFilter.addEventListener('change', filterProducts);
+            ccFilter.addEventListener('change', filterProducts);
+
+            // Modal close
+            modalClose.addEventListener('click', closeModal);
+            overlay.addEventListener('click', function() {
+                closeModal();
+                closeCart();
+            });
+
+            // Review navigation
+            reviewPrev.addEventListener('click', prevReview);
+            reviewNext.addEventListener('click', nextReview);
+
+            // Review indicators
+            document.querySelectorAll('.review-indicator').forEach(indicator => {
+                indicator.addEventListener('click', function() {
+                    goToReview(parseInt(this.getAttribute('data-index')));
+                });
+            });
+
+            // Cart
+            cartIcon.addEventListener('click', openCart);
+            cartClose.addEventListener('click', closeCart);
+            clearCart.addEventListener('click', clearCartItems);
+        }
+
+        // Render products
+        function renderProducts(productsToRender) {
+            productGrid.innerHTML = '';
+            
+            if (productsToRender.length === 0) {
+                productGrid.innerHTML = '<div class="no-products">Keine Motorräder gefunden. Bitte ändere deine Filtereinstellungen.</div>';
+                return;
+            }
+
+            productsToRender.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="product-img">
+                    ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <div class="product-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>${product.year}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>${product.hp} PS</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-bolt"></i>
+                                <span>${product.acceleration}s (0-100)</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-motorcycle"></i>
+                                <span>${product.cc} cc</span>
+                            </div>
+                        </div>
+                        <div class="product-price">${formatPrice(product.price)}</div>
+                        <button class="btn product-btn" data-id="${product.id}">Zum Warenkorb</button>
+                    </div>
+                `;
+
+                // Add event listener to view product details
+                productCard.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('product-btn')) {
+                        openModal(product);
+                    }
+                });
+
+                // Add event listener to add to cart button
+                productCard.querySelector('.product-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    addToCart(product);
+                });
+
+                productGrid.appendChild(productCard);
+            });
+        }
+
+        // Filter products
+        function filterProducts() {
+            const brandValue = brandFilter.value;
+            const ccValue = parseInt(ccFilter.value);
+
+            let filtered = products;
+
+            if (brandValue !== 'all') {
+                filtered = filtered.filter(product => product.brand === brandValue);
+            }
+
+            if (!isNaN(ccValue)) {
+                if (ccValue === 600) {
+                    filtered = filtered.filter(product => product.cc <= 600);
+                } else if (ccValue === 1000) {
+                    filtered = filtered.filter(product => product.cc > 600 && product.cc <= 1000);
+                } else if (ccValue === 1001) {
+                    filtered = filtered.filter(product => product.cc > 1000);
+                }
+            }
+
+            renderProducts(filtered);
+        }
+
+        // Open modal
+        function openModal(product) {
+            modalBody.innerHTML = `
+                <div class="modal-image" style="background-image: url('${product.image}')"></div>
+                <div class="modal-info">
+                    <h2 class="modal-title">${product.name}</h2>
+                    <p class="modal-subtitle">${getBrandFullName(product.brand)}</p>
+                    <div class="modal-specs">
+                        <div class="spec-item">
+                            <span class="spec-label">Baujahr</span>
+                            <span class="spec-value">${product.year}</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Hubraum</span>
+                            <span class="spec-value">${product.cc} cc</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">Leistung</span>
+                            <span class="spec-value">${product.hp} PS</span>
+                        </div>
+                        <div class="spec-item">
+                            <span class="spec-label">0-100 km/h</span>
+                            <span class="spec-value">${product.acceleration} Sekunden</span>
+                        </div>
+                    </div>
+                    <div class="modal-description">
+                        <p>${product.description}</p>
+                    </div>
+                    <div class="modal-price">${formatPrice(product.price)}</div>
+                    <div class="modal-actions">
+                        <button class="btn" id="modalAddToCart" data-id="${product.id}">Zum Warenkorb hinzufügen</button>
+                        <button class="btn btn-transparent" id="modalClose2">Schließen</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalAddToCart').addEventListener('click', function() {
+                addToCart(product);
+                closeModal();
+            });
+
+            document.getElementById('modalClose2').addEventListener('click', closeModal);
+
+            productModal.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeModal() {
+            productModal.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Reviews navigation
+        function showCurrentReview() {
+            reviewsTrack.style.transform = `translateX(-${currentReview * 100}%)`;
+            
+            document.querySelectorAll('.review-indicator').forEach((indicator, index) => {
+                if (index === currentReview) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+        }
+
+        function nextReview() {
+            currentReview = (currentReview + 1) % totalReviews;
+            showCurrentReview();
+        }
+
+        function prevReview() {
+            currentReview = (currentReview - 1 + totalReviews) % totalReviews;
+            showCurrentReview();
+        }
+
+        function goToReview(index) {
+            currentReview = index;
+            showCurrentReview();
+        }
+
+        // Auto rotate reviews
+        setInterval(nextReview, 5000);
+
+        // Cart functions
+        function openCart() {
+            cartSidebar.classList.add('active');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCart() {
+            cartSidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function addToCart(product) {
+            const existingItem = cart.find(item => item.id === product.id);
+            
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+            showToast(`${product.name} wurde zum Warenkorb hinzugefügt!`);
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+            showToast('Produkt wurde aus dem Warenkorb entfernt.');
+        }
+
+        function updateQuantity(productId, newQuantity) {
+            const item = cart.find(item => item.id === productId);
+            
+            if (item) {
+                item.quantity = newQuantity;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCart();
+                }
+            }
+        }
+
+        function clearCartItems() {
+            cart = [];
+            updateCart();
+            showToast('Warenkorb wurde geleert.');
+        }
+
+        function updateCart() {
+            renderCartItems();
+            updateCartTotal();
+            updateCartBadge();
+            saveCartToLocalStorage();
+        }
+
+        function renderCartItems() {
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<div class="empty-cart-message">Dein Warenkorb ist leer.</div>';
+                return;
+            }
+
+            cartItems.innerHTML = '';
+            
+            cart.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div class="cart-item-img">
+                        <img src="${item.image}" alt="${item.name}">
+                    </div>
+                    <div class="cart-item-info">
+                        <h4 class="cart-item-name">${item.name}</h4>
+                        <div class="cart-item-price">${formatPrice(item.price)}</div>
+                        <div class="cart-item-quantity">
+                            <button class="quantity-btn decrease" data-id="${item.id}">-</button>
+                            <input type="text" class="quantity-input" value="${item.quantity}" readonly>
+                            <button class="quantity-btn increase" data-id="${item.id}">+</button>
+                            <div class="cart-item-remove" data-id="${item.id}">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                cartItems.appendChild(cartItem);
+            });
+
+            // Add event listeners to cart item buttons
+            document.querySelectorAll('.decrease').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    const item = cart.find(item => item.id === id);
+                    if (item) {
+                        updateQuantity(id, item.quantity - 1);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.increase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    const item = cart.find(item => item.id === id);
+                    if (item) {
+                        updateQuantity(id, item.quantity + 1);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.cart-item-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    removeFromCart(id);
+                });
+            });
+        }
+
+        function updateCartTotal() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = subtotal * 0.05; // 5% Versandkosten
+            const total = subtotal + shipping;
+
+            const cartShipping = document.getElementById('cartShipping');
+            const cartTotal = document.getElementById('cartTotal');
+
+            if (cartShipping) {
+                cartShipping.textContent = formatPrice(shipping);
+            }
+            if (cartTotal) {
+                cartTotal.textContent = formatPrice(total);
+            }
+        }
+
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartBadge.textContent = totalItems;
+            
+            if (totalItems > 0) {
+                cartBadge.classList.add('active');
+            } else {
+                cartBadge.classList.remove('active');
+            }
+        }
+
+        function saveCartToLocalStorage() {
+            localStorage.setItem('motoEliteCart', JSON.stringify(cart));
+        }
+
+        function loadCartFromLocalStorage() {
+            const savedCart = localStorage.getItem('motoEliteCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCart();
+            }
+        }
+
+        // Toast notification
+        function showToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.add('active');
+            
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Helper functions
+        function formatPrice(price) {
+            return new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(price);
+        }
+
+        function getBrandFullName(brandCode) {
+            const brands = {
+                'ducati': 'Ducati',
+                'bmw': 'BMW Motorrad',
+                'honda': 'Honda',
+                'kawasaki': 'Kawasaki'
+            };
+            
+            return brands[brandCode] || brandCode;
+        }
+
+        // Load cart from local storage on page load
+        loadCartFromLocalStorage();
+    </script>
+</body>
+</html>
