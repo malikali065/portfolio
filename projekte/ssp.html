@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Rock Paper Scissors</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Exo+2:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #8a2be2;
+            --secondary-color: #4a148c;
+            --accent-color: #00bcd4;
+            --text-color: #e0e0e0;
+            --background-dark: #121212;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --glass-effect: rgba(255, 255, 255, 0.08);
+            --border-radius: 12px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --glow: 0 0 15px rgba(138, 43, 226, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #121212, #2d2d2d);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            overflow-x: hidden;
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        h1 {
+            font-family: 'Audiowide', cursive;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent-color), var(--primary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+        }
+
+        .scoreboard {
+            background: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-value {
+            background: rgba(0, 0, 0, 0.2);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            color: var(--accent-color);
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-divider {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-modes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .mode-btn {
+            background: var(--glass-effect);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Exo 2', sans-serif;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow);
+            border-color: var(--primary-color);
+        }
+
+        .mode-btn.active {
+            background: rgba(138, 43, 226, 0.3);
+            border-color: var(--primary-color);
+            box-shadow: var(--glow);
+        }
+
+        .game-variants {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .game-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .choice-card {
+            background: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            width: 100px;
+            height: 100px;
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.1),
+                rgba(255, 255, 255, 0.05),
+                rgba(255, 255, 255, 0)
+            );
+            transform: rotate(45deg);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--shadow), var(--glow);
+            border-color: var(--primary-color);
+        }
+
+        .choice-card.selected {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .choice-card.win {
+            border-color: #4caf50;
+            box-shadow: 0 0 15px #4caf50;
+        }
+
+        .choice-card.lose {
+            border-color: #f44336;
+            box-shadow: 0 0 15px #f44336;
+        }
+
+        .choice-card.draw {
+            border-color: #ff9800;
+            box-shadow: 0 0 15px #ff9800;
+        }
+
+        .choice-emoji {
+            font-size: 3rem;
+            margin-bottom: 5px;
+            z-index: 2;
+        }
+
+        .choice-name {
+            font-size: 0.8rem;
+            z-index: 2;
+        }
+
+        .result-area {
+            background: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            width: 100%;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result-area.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .battle-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .player-choice, .computer-choice {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .vs {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .result-emoji {
+            font-size: 4rem;
+            transform: scale(0);
+            transition: transform 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+
+        .result-emoji.show {
+            transform: scale(1);
+        }
+
+        .result-message {
+            font-size: 1.2rem;
+            text-align: center;
+            animation: fadeIn 1s ease forwards;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            max-width: 100%;
+        }
+
+        .result-detail {
+            font-size: 1rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Exo 2', sans-serif;
+        }
+
+        .action-btn:hover {
+            background: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .player-turn {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            animation: pulse 1.5s infinite;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .player2-prompt {
+            background: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            max-width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(138, 43, 226, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(138, 43, 226, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(138, 43, 226, 0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .choice-card {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .choice-emoji {
+                font-size: 2.5rem;
+            }
+            
+            .choice-name {
+                font-size: 0.7rem;
+            }
+            
+            .scoreboard {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+            
+            .score-value {
+                width: 30px;
+                height: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Ultimate Rock Paper Scissors</h1>
+        </header>
+
+        <div class="scoreboard">
+            <div class="score">
+                <span class="score-label">Spieler 1</span>
+                <div class="score-value" id="player1-score">0</div>
+            </div>
+            <div class="score-divider">:</div>
+            <div class="score">
+                <div class="score-value" id="player2-score">0</div>
+                <span class="score-label" id="player2-label">Computer</span>
+            </div>
+        </div>
+
+        <div class="game-modes">
+            <button class="mode-btn active" data-mode="classic">🎮 Classic</button>
+            <button class="mode-btn" data-mode="expanded">🖖 Expanded</button>
+            <button class="mode-btn" data-mode="anime">🎭 Anime</button>
+        </div>
+
+        <div class="game-variants">
+            <button class="mode-btn active" data-variant="pvbot">vs KI</button>
+            <button class="mode-btn" data-variant="pvp">vs Spieler</button>
+        </div>
+
+        <div class="game-area">
+            <div class="player-turn" id="turn-indicator">Wähle deinen Zug</div>
+            
+            <div class="choices" id="choices-container">
+                <!-- Choices will be generated by JavaScript -->
+            </div>
+
+            <div class="result-area" id="result-area">
+                <div class="battle-area">
+                    <div class="player-choice">
+                        <div class="result-emoji" id="player-result-emoji"></div>
+                        <div>Spieler 1</div>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="computer-choice">
+                        <div class="result-emoji" id="computer-result-emoji"></div>
+                        <div id="opponent-name">Computer</div>
+                    </div>
+                </div>
+                <div class="result-message" id="result-message"></div>
+                <div class="result-detail" id="result-detail"></div>
+                <div class="action-buttons">
+                    <button class="action-btn" id="play-again-btn">Nochmal Spielen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="player2-overlay">
+        <div class="player2-prompt">
+            <h2>Spieler 2 ist dran</h2>
+            <p>Bitte wähle deinen Zug</p>
+            <div class="choices" id="player2-choices">
+                <!-- Choices for player 2 will be added by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            mode: 'classic',
+            variant: 'pvbot',
+            player1Choice: null,
+            player2Choice: null,
+            player1Score: localStorage.getItem('player1Score') ? parseInt(localStorage.getItem('player1Score')) : 0,
+            player2Score: localStorage.getItem('player2Score') ? parseInt(localStorage.getItem('player2Score')) : 0,
+            currentPlayer: 1,
+            roundActive: false
+        };
+
+        // Game configurations
+        const gameModes = {
+            classic: {
+                name: 'Classic',
+                choices: [
+                    { name: 'Schere', emoji: '✂️', beats: ['Papier'] },
+                    { name: 'Stein', emoji: '🪨', beats: ['Schere'] },
+                    { name: 'Papier', emoji: '📄', beats: ['Stein'] }
+                ]
+            },
+            expanded: {
+                name: 'Expanded',
+                choices: [
+                    { name: 'Schere', emoji: '✂️', beats: ['Papier', 'Echse'] },
+                    { name: 'Stein', emoji: '🪨', beats: ['Schere', 'Echse'] },
+                    { name: 'Papier', emoji: '📄', beats: ['Stein', 'Spock'] },
+                    { name: 'Echse', emoji: '🦎', beats: ['Papier', 'Spock'] },
+                    { name: 'Spock', emoji: '🖖', beats: ['Schere', 'Stein'] }
+                ]
+            },
+            anime: {
+                name: 'Anime',
+                choices: [
+                    { name: 'Goku', emoji: '👊', beats: ['Naruto', 'Luffy'] },
+                    { name: 'Naruto', emoji: '🥷', beats: ['Luffy', 'Vegeta'] },
+                    { name: 'Luffy', emoji: '🏴‍☠️', beats: ['Vegeta', 'Ichigo'] },
+                    { name: 'Vegeta', emoji: '👑', beats: ['Ichigo', 'Goku'] },
+                    { name: 'Ichigo', emoji: '⚔️', beats: ['Goku', 'Naruto'] }
+                ]
+            }
+        };
+
+        // Get DOM elements
+        const player1ScoreElem = document.getElementById('player1-score');
+        const player2ScoreElem = document.getElementById('player2-score');
+        const player2LabelElem = document.getElementById('player2-label');
+        const choicesContainer = document.getElementById('choices-container');
+        const player2ChoicesContainer = document.getElementById('player2-choices');
+        const resultArea = document.getElementById('result-area');
+        const playerResultEmoji = document.getElementById('player-result-emoji');
+        const computerResultEmoji = document.getElementById('computer-result-emoji');
+        const resultMessage = document.getElementById('result-message');
+        const resultDetail = document.getElementById('result-detail');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const turnIndicator = document.getElementById('turn-indicator');
+        const player2Overlay = document.getElementById('player2-overlay');
+        const opponentNameElem = document.getElementById('opponent-name');
+
+        // Initialize the game
+        function initGame() {
+            // Update scoreboard
+            updateScoreboard();
+            
+            // Generate choices based on selected mode
+            generateChoices();
+            
+            // Add event listeners
+            setupEventListeners();
+        }
+
+        // Update the scoreboard
+        function updateScoreboard() {
+            player1ScoreElem.textContent = gameState.player1Score;
+            player2ScoreElem.textContent = gameState.player2Score;
+            
+            // Update opponent label
+            if (gameState.variant === 'pvp') {
+                player2LabelElem.textContent = 'Spieler 2';
+                opponentNameElem.textContent = 'Spieler 2';
+            } else {
+                player2LabelElem.textContent = 'Computer';
+                opponentNameElem.textContent = 'Computer';
+            }
+            
+            // Save scores to localStorage
+            localStorage.setItem('player1Score', gameState.player1Score);
+            localStorage.setItem('player2Score', gameState.player2Score);
+        }
+
+        // Generate choice cards
+        function generateChoices() {
+            const currentModeChoices = gameModes[gameState.mode].choices;
+            
+            // Clear containers
+            choicesContainer.innerHTML = '';
+            player2ChoicesContainer.innerHTML = '';
+            
+            // Create choice cards for both players
+            currentModeChoices.forEach(choice => {
+                // Player 1 choices
+                const card = createChoiceCard(choice, 1);
+                choicesContainer.appendChild(card);
+                
+                // Player 2 choices (for PvP mode)
+                const card2 = createChoiceCard(choice, 2);
+                player2ChoicesContainer.appendChild(card2);
+            });
+        }
+
+        // Create a choice card element
+        function createChoiceCard(choice, playerNum) {
+            const card = document.createElement('div');
+            card.className = 'choice-card';
+            card.dataset.choice = choice.name;
+            card.dataset.player = playerNum;
+            
+            const emoji = document.createElement('div');
+            emoji.className = 'choice-emoji';
+            emoji.textContent = choice.emoji;
+            
+            const name = document.createElement('div');
+            name.className = 'choice-name';
+            name.textContent = choice.name;
+            
+            card.appendChild(emoji);
+            card.appendChild(name);
+            
+            // Add click event
+            card.addEventListener('click', () => handleChoiceClick(choice, playerNum));
+            
+            return card;
+        }
+
+        // Handle choice card click
+        function handleChoiceClick(choice, playerNum) {
+            if (gameState.roundActive) return;
+            
+            if (playerNum === 1 && gameState.currentPlayer === 1) {
+                selectChoice(choice, 1);
+                
+                if (gameState.variant === 'pvbot') {
+                    // Computer's turn
+                    setTimeout(() => {
+                        const computerChoice = getComputerChoice();
+                        selectChoice(computerChoice, 2);
+                        evaluateRound();
+                    }, 500);
+                } else {
+                    // Player 2's turn in PvP mode
+                    gameState.currentPlayer = 2;
+                    turnIndicator.textContent = 'Spieler 2 ist an der Reihe';
+                    player2Overlay.classList.add('show');
+                }
+            } else if (playerNum === 2 && gameState.currentPlayer === 2) {
+                selectChoice(choice, 2);
+                player2Overlay.classList.remove('show');
+                evaluateRound();
+            }
+        }
+
+        // Select a choice
+        function selectChoice(choice, playerNum) {
+            // Update game state
+            if (playerNum === 1) {
+                gameState.player1Choice = choice;
+                
+                // Visual feedback
+                document.querySelectorAll('.choice-card[data-player="1"]').forEach(card => {
+                    if (card.dataset.choice === choice.name) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+            } else {
+                gameState.player2Choice = choice;
+                
+                // Visual feedback for PvP
+                document.querySelectorAll('.choice-card[data-player="2"]').forEach(card => {
+                    if (card.dataset.choice === choice.name) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                });
+            }
+        }
+
+        // Get computer choice
+        function getComputerChoice() {
+            const choices = gameModes[gameState.mode].choices;
+            return choices[Math.floor(Math.random() * choices.length)];
+        }
+
+        // Evaluate the round result
+        function evaluateRound() {
+            gameState.roundActive = true;
+            const p1Choice = gameState.player1Choice;
+            const p2Choice = gameState.player2Choice;
+            
+            // Reset game state for next round
+            gameState.currentPlayer = 1;
+            turnIndicator.textContent = 'Ergebnis wird ermittelt...';
+            
+            // Show result area with animation
+            resultArea.classList.add('show');
+            
+            // Show emojis with animation
+            playerResultEmoji.textContent = p1Choice.emoji;
+            computerResultEmoji.textContent = p2Choice.emoji;
+            
+            setTimeout(() => {
+                playerResultEmoji.classList.add('show');
+                
+                setTimeout(() => {
+                    computerResultEmoji.classList.add('show');
+                    
+                    setTimeout(() => {
+                        // Determine winner
+                        let winner = 0; // 0 = draw, 1 = player1, 2 = player2
+                        let resultText = '';
+                        let detailText = '';
+                        
+                        if (p1Choice.name === p2Choice.name) {
+                            // Draw
+                            resultText = 'Unentschieden!';
+                            detailText = `Beide haben ${p1Choice.name} gewählt`;
+                        } else if (p1Choice.beats.includes(p2Choice.name)) {
+                            // Player 1 wins
+                            winner = 1;
+                            resultText = 'Spieler 1 gewinnt!';
+                            detailText = getResultDetail(p1Choice, p2Choice);
+                            gameState.player1Score++;
+                        } else {
+                            // Player 2 wins
+                            winner = 2;
+                            resultText = gameState.variant === 'pvp' ? 'Spieler 2 gewinnt!' : 'Computer gewinnt!';
+                            detailText = getResultDetail(p2Choice, p1Choice);
+                            gameState.player2Score++;
+                        }
+                        
+                        // Update display
+                        resultMessage.textContent = resultText;
+                        resultDetail.textContent = detailText;
+                        updateScoreboard();
+                        
+                        // Highlight winner cards
+                        const p1Card = document.querySelector(`.choice-card[data-player="1"][data-choice="${p1Choice.name}"]`);
+                        const p2Cards = document.querySelectorAll(`.choice-card[data-player="2"][data-choice="${p2Choice.name}"]`);
+                        
+                        if (winner === 0) {
+                            p1Card.classList.add('draw');
+                            p2Cards.forEach(card => card.classList.add('draw'));
+                        } else if (winner === 1) {
+                            p1Card.classList.add('win');
+                            p2Cards.forEach(card => card.classList.add('lose'));
+                        } else {
+                            p1Card.classList.add('lose');
+                            p2Cards.forEach(card => card.classList.add('win'));
+                        }
+                    }, 300);
+                }, 300);
+            }, 300);
+        }
+
+        // Get detailed result text
+        function getResultDetail(winnerChoice, loserChoice) {
+            if (gameState.mode === 'classic') {
+                if (winnerChoice.name === 'Schere' && loserChoice.name === 'Papier') {
+                    return '✂️ Schere schneidet 📄 Papier';
+                } else if (winnerChoice.name === 'Stein' && loserChoice.name === 'Schere') {
+                    return '🪨 Stein zerschmettert ✂️ Schere';
+                } else if (winnerChoice.name === 'Papier' && loserChoice.name === 'Stein') {
+                    return '📄 Papier umhüllt 🪨 Stein';
+                }
+            } else if (gameState.mode === 'expanded') {
+                if (winnerChoice.name === 'Schere' && loserChoice.name === 'Papier') {
+                    return '✂️ Schere schneidet 📄 Papier';
+                } else if (winnerChoice.name === 'Schere' && loserChoice.name === 'Echse') {
+                    return '✂️ Schere köpft 🦎 Echse';
+                } else if (winnerChoice.name === 'Stein' && loserChoice.name === 'Schere') {
+                    return '🪨 Stein zerschmettert ✂️ Schere';
+                } else if (winnerChoice.name === 'Stein' && loserChoice.name === 'Echse') {
+                    return '🪨 Stein zerquetscht 🦎 Echse';
+                } else if (winnerChoice.name === 'Papier' && loserChoice.name === 'Stein') {
+                    return '📄 Papier umhüllt 🪨 Stein';
+                } else if (winnerChoice.name === 'Papier' && loserChoice.name === 'Spock') {
+                    return '📄 Papier widerlegt 🖖 Spock';
+                } else if (winnerChoice.name === 'Echse' && loserChoice.name === 'Papier') {
+                    return '🦎 Echse frisst 📄 Papier';
+                } else if (winnerChoice.name === 'Echse' && loserChoice.name === 'Spock') {
+                    return '🦎 Echse vergiftet 🖖 Spock';
+                } else if (winnerChoice.name === 'Spock' && loserChoice.name === 'Schere') {
+                    return '🖖 Spock zerbricht ✂️ Schere';
+                } else if (winnerChoice.name === 'Spock' && loserChoice.name === 'Stein') {
+                    return '🖖 Spock verdampft 🪨 Stein';
+                }
+            } else if (gameState.mode === 'anime') {
+                if (winnerChoice.name === 'Goku' && loserChoice.name === 'Naruto') {
+                    return '👊 Goku besiegt 🥷 Naruto mit Kamehameha';
+                } else if (winnerChoice.name === 'Goku' && loserChoice.name === 'Luffy') {
+                    return '👊 Goku übertrifft 🏴‍☠️ Luffy mit Ultra-Instinct';
+                } else if (winnerChoice.name === 'Naruto' && loserChoice.name === 'Luffy') {
+                    return '🥷 Naruto überlistet 🏴‍☠️ Luffy mit Schattendoppelgänger';
+                } else if (winnerChoice.name === 'Naruto' && loserChoice.name === 'Vegeta') {
+                    return '🥷 Naruto besiegt 👑 Vegeta mit Rasengan';
+                } else if (winnerChoice.name === 'Luffy' && loserChoice.name === 'Vegeta') {
+                    return '🏴‍☠️ Luffy überwältigt 👑 Vegeta mit Gear Fourth';
+                } else if (winnerChoice.name === 'Luffy' && loserChoice.name === 'Ichigo') {
+                    return '🏴‍☠️ Luffy besiegt ⚔️ Ichigo mit Gum-Gum-Attacke';
+                } else if (winnerChoice.name === 'Vegeta' && loserChoice.name === 'Ichigo') {
+                    return '👑 Vegeta dominiert ⚔️ Ichigo mit Final Flash';
+                } else if (winnerChoice.name === 'Vegeta' && loserChoice.name === 'Goku') {
+                    return '👑 Vegeta übertrumpft 👊 Goku mit königlicher Strategie';
+                } else if (winnerChoice.name === 'Ichigo' && loserChoice.name === 'Goku') {
+                    return '⚔️ Ichigo überrascht 👊 Goku mit Bankai';
+                } else if (winnerChoice.name === 'Ichigo' && loserChoice.name === 'Naruto') {
+                    return '⚔️ Ichigo besiegt 🥷 Naruto mit Seelenschneider';
+                }
+            }
+            
+            return `${winnerChoice.name} besiegt ${loserChoice.name}`;
+        }
+
+        // Reset for a new round
+        function resetRound() {
+            gameState.roundActive = false;
+            gameState.player1Choice = null;
+            gameState.player2Choice = null;
+            
+            // Reset UI
+            resultArea.classList.remove('show');
+            playerResultEmoji.classList.remove('show');
+            computerResultEmoji.classList.remove('show');
+            
+            // Reset card highlights
+            document.querySelectorAll('.choice-card').forEach(card => {
+                card.classList.remove('selected', 'win', 'lose', 'draw');
+            });
+            
+            // Update turn indicator
+            turnIndicator.textContent = 'Wähle deinen Zug';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Game mode buttons
+            document.querySelectorAll('.game-modes .mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active button
+                    document.querySelectorAll('.game-modes .mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Update game state
+                    gameState.mode = btn.dataset.mode;
+                    resetRound();
+                    generateChoices();
+                });
+            });
+            
+            // Game variant buttons
+            document.querySelectorAll('.game-variants .mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active button
+                    document.querySelectorAll('.game-variants .mode-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Update game state
+                    gameState.variant = btn.dataset.variant;
+                    resetRound();
+                    updateScoreboard();
+                });
+            });
+            
+            // Play again button
+            playAgainBtn.addEventListener('click', resetRound);
+        }
+
+        // Initialize the game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
