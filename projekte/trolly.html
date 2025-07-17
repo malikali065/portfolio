@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zug-Fragen – Dein moralisches Dilemma</title>
+    <link rel="icon" type="image/x-icon" href="assets/universal/favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #111111;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .dark body {
+            background: #121212;
+            color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Dark Mode Toggle */
+        .dark-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .dark .dark-toggle {
+            background: #2a2a2a;
+            color: #f5f5f5;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+        }
+
+        .dark-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            z-index: 999;
+            display: none;
+        }
+
+        .dark .progress-container {
+            background: #333;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* Fade-in Animation */
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Slide-in Animation */
+        .slide-in {
+            transform: translateY(30px);
+            opacity: 0;
+            animation: slideIn 0.6s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Startseite */
+        .start-page {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .emoji-title {
+            display: inline-block;
+            margin-right: 0.3em;
+            font-size: 1.1em;
+            background: none;
+            -webkit-background-clip: initial;
+            -webkit-text-fill-color: initial;
+            background-clip: initial;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .dark .subtitle {
+            color: #aaa;
+        }
+
+        .description {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            color: #555;
+        }
+
+        .dark .description {
+            color: #bbb;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .dark .btn:hover {
+            box-shadow: 0 8px 25px rgba(255,255,255,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn-red {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            margin-top: 20px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Question Page */
+        .question-container {
+            text-align: center;
+            padding: 40px 20px;
+            background: #fafafa;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dark .question-container {
+            background: #1e1e1e;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.05);
+        }
+
+        .question-number {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        .question-image {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .btn-green, .btn-red {
+            width: 100%;
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        @media (min-width: 768px) {
+            .options {
+                flex-direction: row;
+            }
+            .btn-green, .btn-red {
+                width: 100%;
+                flex: 1 1 0;
+                min-width: 0;
+            }
+        }
+
+        /* Statistik */
+        .statistics {
+            background: #f0f0f0;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .dark .statistics {
+            background: #2a2a2a;
+        }
+
+        .statistics h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .dark .statistics h3 {
+            color: #ddd;
+        }
+
+        .stat-bars {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #ddd;
+        }
+
+        .dark .stat-bars {
+            background: #444;
+        }
+
+        .stat-bar {
+            transition: width 1.2s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .stat-bar-green {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .stat-bar-red {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        .stat-text {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .dark .stat-text {
+            color: #aaa;
+        }
+
+        /* Result Page */
+        .result-container {
+            text-align: center;
+            padding: 50px 20px;
+            background: #fafafa;
+            border-radius: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .dark .result-container {
+            background: #1e1e1e;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.05);
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .result-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .dark .result-title {
+            color: #fff;
+        }
+
+        .result-description {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #555;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dark .result-description {
+            color: #bbb;
+        }
+
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .result-stat {
+            text-align: center;
+        }
+
+        .result-stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .result-stat-green {
+            color: #4CAF50;
+        }
+
+        .result-stat-red {
+            color: #f44336;
+        }
+
+        .anime-top3 {
+            margin: 20px 0;
+        }
+
+        .top-character {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .top-character:hover {
+            transform: translateY(-2px);
+        }
+
+        .top-character:first-child {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .top-character:nth-child(2) {
+            background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+            color: #333;
+        }
+
+        .top-character:nth-child(3) {
+            background: linear-gradient(135deg, #cd7f32 0%, #b8860b 100%);
+            color: white;
+        }
+
+        .anime-champion {
+            margin: 20px 0;
+        }
+
+        .champion-card {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+            margin: 15px 0;
+        }
+
+        .champion-card h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+        }
+
+        .fight-stats {
+            margin: 15px 0;
+        }
+
+        .fighter-stat {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .fighter-stat.champion-stat {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: #333;
+            border-left: 4px solid #ffd700;
+            font-weight: bold;
+        }
+
+        .result-stat-label {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .dark .result-stat-label {
+            color: #aaa;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.4rem;
+            }
+            
+            .question-text {
+                font-size: 1.3rem;
+            }
+            
+            .result-stats {
+                gap: 30px;
+            }
+        }
+        .mode-select {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            margin: 40px auto 0 auto;
+        }
+        .mode-btn {
+            padding: 25px 30px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .mode-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+        }
+        @media (min-width: 600px) {
+            .mode-select {
+                flex-direction: row;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Dark Mode Toggle -->
+    <button class="dark-toggle" onclick="toggleDarkmode()">
+        <span class="sun">🌞</span>
+        <span class="moon">🌙</span>
+    </button>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="container">
+        <!-- Startseite -->
+        <div id="startPage" class="start-page fade-in">
+            <h1 class="title"><span class="emoji-title">🚋</span> Zug-Fragen</h1>
+            <h2 class="subtitle">Dein moralisches Dilemma</h2>
+            <p class="description">
+                Ethische Dilemmata – triff deine Entscheidung! Entdecke dein moralisches Profil 
+                und erfahre, wie andere Spieler entschieden haben.
+            </p>
+            <div class="mode-select">
+                <button class="mode-btn" id="classicBtn">Klassischer Modus</button>
+                <button class="mode-btn" id="ytBtn">Youtuber-Modus</button>
+                <button class="mode-btn" id="animeBtn">Anime-Modus</button>
+            </div>
+        </div>
+
+        <!-- Frage-Seite -->
+        <div id="questionPage" class="hidden">
+            <div class="question-container fade-in">
+                <div class="question-number" id="questionNumber">Frage 1 von 15</div>
+                <div class="question-image" id="questionImage">🚋</div>
+                <div class="question-text" id="questionText"></div>
+                
+                <div class="options">
+                    <button class="btn btn-green" id="option1" onclick="selectAnswer(true)">
+                        ✅ Hebel betätigen
+                    </button>
+                    <button class="btn btn-red" id="option2" onclick="selectAnswer(false)">
+                        🚫 Nichts tun
+                    </button>
+                </div>
+                
+                <!-- Anime Mode Skip Button -->
+                <div class="anime-skip-container" id="animeSkipContainer" style="display: none; margin-top: 15px;">
+                    <button class="btn btn-secondary" onclick="showAnimeResult()" style="font-size: 0.9rem; padding: 8px 16px;">
+                        🏆 Zur Auswertung springen
+                    </button>
+                </div>
+
+                <div class="statistics slide-in" id="statistik">
+                    <h3>📊 Andere Spieler wählten:</h3>
+                    <div class="stat-bars">
+                        <div class="stat-bar stat-bar-green" id="statBar1"></div>
+                        <div class="stat-bar stat-bar-red" id="statBar2"></div>
+                    </div>
+                    <div class="stat-text" id="statText"></div>
+                    <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">
+                        ➡️ Nächste Frage
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auswertungsseite -->
+        <div id="resultPage" class="hidden">
+            <div class="result-container fade-in">
+                <div class="result-icon" id="resultIcon">🎯</div>
+                <h2 class="result-title" id="resultTitle">Dein moralisches Profil</h2>
+                <p class="result-description" id="resultDescription"></p>
+                
+                <div class="result-stats">
+                    <div class="result-stat">
+                        <div class="result-stat-number result-stat-green" id="interventionCount">0</div>
+                        <div class="result-stat-label">Eingriffe</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="result-stat-number result-stat-red" id="nonInterventionCount">0</div>
+                        <div class="result-stat-label">Nicht eingegriffen</div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="restartGame()">🔄 Nochmal spielen</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Made with ❤️ by Ali Malik
+    </footer>
+
+    <script>
+        // Fragen-Daten
+        let spielModus = 'klassisch';
+        const fragenKlassisch = [
+            {
+                id: 1,
+                bild: "🚂",
+                text: "Ein Zug rast auf fünf Gleisarbeiter zu. Wenn du den Hebel ziehst, wird er auf ein Nebengleis umgeleitet und eine Person töten. Was tust du?",
+                statistik: { a: 64, b: 36 }
+            },
+            {
+                id: 2,
+                bild: "👷‍♂️",
+                text: "Ein Zug rast auf fünf Kinder zu. Wenn du den Hebel ziehst, wird er einen alten Mann treffen. Was tust du?",
+                statistik: { a: 72, b: 28 }
+            },
+            {
+                id: 3,
+                bild: "👩‍⚕️",
+                text: "Ein Zug rast auf fünf Kranke zu. Du kannst ihn umleiten, aber dann würde eine gesunde Ärztin sterben. Was tust du?",
+                statistik: { a: 41, b: 59 }
+            },
+            {
+                id: 4,
+                bild: "👶",
+                text: "Ein Zug rast auf fünf Erwachsene zu. Du kannst ihn umleiten, aber dann würde ein Baby sterben. Was tust du?",
+                statistik: { a: 19, b: 81 }
+            },
+            {
+                id: 5,
+                bild: "💰",
+                text: "Auf einem Gleis liegt ein reicher Mann, auf dem anderen ein armer. Der Reiche bietet dir 500.000€, wenn du den Zug auf den Armen lenkst. Was tust du?",
+                statistik: { a: 8, b: 92 }
+            },
+            {
+                id: 6,
+                bild: "👩‍🎓",
+                text: "Ein Zug rast auf fünf Schüler zu. Du kannst ihn umleiten, aber dann würde dein bester Freund sterben. Was tust du?",
+                statistik: { a: 23, b: 77 }
+            },
+            {
+                id: 7,
+                bild: "👮‍♂️",
+                text: "Ein Zug rast auf fünf Gefangene zu. Du kannst ihn umleiten, aber dann würde ein unschuldiger Polizist sterben. Was tust du?",
+                statistik: { a: 34, b: 66 }
+            },
+            {
+                id: 8,
+                bild: "🤖",
+                text: "Ein Zug rast auf fünf Roboter zu. Du kannst ihn umleiten, aber dann würde ein Mensch sterben. Was tust du?",
+                statistik: { a: 12, b: 88 }
+            },
+            {
+                id: 9,
+                bild: "🐶",
+                text: "Ein Zug rast auf fünf Hunde zu. Du kannst ihn umleiten, aber dann würde ein Mensch sterben. Was tust du?",
+                statistik: { a: 6, b: 94 }
+            },
+            {
+                id: 10,
+                bild: "🎲",
+                text: "Du hast eine 50% Chance, alle sechs Personen zu retten, aber auch eine 50% Chance, dass alle sterben. Alternativ kannst du sicher fünf retten und eine opfern. Was tust du?",
+                statistik: { a: 38, b: 62 }
+            },
+            {
+                id: 11,
+                bild: "🦸‍♂️",
+                text: "Du bist Superheld. Ein Zug rast auf fünf Bösewichte zu. Du kannst ihn umleiten, aber dann würde ein Unschuldiger sterben. Was tust du?",
+                statistik: { a: 27, b: 73 }
+            },
+            {
+                id: 12,
+                bild: "👩‍💼",
+                text: "Ein Zug rast auf fünf Arbeitslose zu. Du kannst ihn umleiten, aber dann würde ein erfolgreicher Unternehmer sterben. Was tust du?",
+                statistik: { a: 21, b: 79 }
+            },
+            {
+                id: 13,
+                bild: "🧑‍🎤",
+                text: "Ein Zug rast auf fünf Unbekannte zu. Du kannst ihn umleiten, aber dann würde ein berühmter Popstar sterben. Was tust du?",
+                statistik: { a: 14, b: 86 }
+            },
+            {
+                id: 14,
+                bild: "👽",
+                text: "Ein Zug rast auf fünf Menschen zu. Du kannst ihn umleiten, aber dann würde ein Außerirdischer sterben, der vielleicht die Menschheit retten könnte. Was tust du?",
+                statistik: { a: 11, b: 89 }
+            },
+            {
+                id: 15,
+                bild: "🦄",
+                text: "Ein Zug rast auf fünf Einhörner zu. Du kannst ihn umleiten, aber dann würde ein Mensch sterben. Was tust du?",
+                statistik: { a: 3, b: 97 }
+            }
+        ];
+        const fragenYoutuber = [
+            {
+                id: 1,
+                bild: "🎬",
+                text: "Der Zug rast auf dem Gleis zu, auf dem Rezo gefesselt ist. Du kannst den Hebel ziehen und den Zug auf Julien Bam umlenken – dann würde Julien sterben. Was tust du?",
+                optionen: ["Rezo retten", "Julien Bam retten"],
+                statistik: { a: 61, b: 39 }
+            },
+            {
+                id: 2,
+                bild: "🎤",
+                text: "Der Zug rast auf Tanzverbot zu. Wenn du den Hebel ziehst, wird KuchenTV überfahren. Wen rettest du?",
+                optionen: ["Tanzverbot retten", "KuchenTV retten"],
+                statistik: { a: 57, b: 43 }
+            },
+            {
+                id: 3,
+                bild: "💰",
+                text: "Der Zug rast auf MrBeast zu. Er bietet dir 1 Million Dollar, wenn du stattdessen Ryan Trahan opferst. Was tust du?",
+                optionen: ["MrBeast retten", "Ryan Trahan opfern (1 Mio $)"],
+                statistik: { a: 82, b: 18 }
+            },
+            {
+                id: 4,
+                bild: "🦄",
+                text: "Der Zug rast auf Laserluca zu. Du kannst ihn umlenken, aber dann würde Paluten sterben. Wer überlebt?",
+                optionen: ["Laserluca retten", "Paluten retten"],
+                statistik: { a: 67, b: 33 }
+            },
+            {
+                id: 5,
+                bild: "👑",
+                text: "Der Zug rast auf MontanaBlack zu. Du kannst ihn umlenken, aber dann würde Knossi sterben. Wer überlebt?",
+                optionen: ["MontanaBlack retten", "Knossi retten"],
+                statistik: { a: 66, b: 34 }
+            },
+            {
+                id: 6,
+                bild: "👩‍🎤",
+                text: "Auf einem Gleis liegt Shirin David, auf dem anderen Katja Krasavice. Wen rettest du?",
+                optionen: ["Shirin David retten", "Katja Krasavice retten"],
+                statistik: { a: 59, b: 41 }
+            },
+            {
+                id: 7,
+                bild: "👨‍🍳",
+                text: "Der Zug rast auf Papaplatte zu. Du kannst ihn umlenken, aber dann würde Trymacs sterben. Wer bleibt verschont?",
+                optionen: ["Papaplatte retten", "Trymacs retten"],
+                statistik: { a: 51, b: 49 }
+            },
+            {
+                id: 8,
+                bild: "🦄",
+                text: "Der Zug rast auf Laserluca zu. Du kannst ihn umlenken, aber dann würde MckyTV sterben. Wer wird verschont?",
+                optionen: ["Laserluca retten", "MckyTV retten"],
+                statistik: { a: 74, b: 26 }
+            },
+            {
+                id: 9,
+                bild: "👩‍🦰",
+                text: "Auf einem Gleis liegt Julia Beautx, auf dem anderen Bibi (BibisBeautyPalace). Wen rettest du?",
+                optionen: ["Julia Beautx retten", "Bibi retten"],
+                statistik: { a: 53, b: 47 }
+            },
+            {
+                id: 10,
+                bild: "🦸‍♂️",
+                text: "Der Zug rast auf PewDiePie zu. Du kannst ihn umlenken, aber dann würde Markiplier sterben. Wer überlebt?",
+                optionen: ["PewDiePie retten", "Markiplier retten"],
+                statistik: { a: 69, b: 31 }
+            },
+            {
+                id: 11,
+                bild: "🎧",
+                text: "Der Zug rast auf MckyTV zu. Du kannst ihn umlenken, aber dann würde Amar sterben. Wer wird verschont?",
+                optionen: ["MckyTV retten", "Amar retten"],
+                statistik: { a: 48, b: 52 }
+            },
+            {
+                id: 12,
+                bild: "👩‍🔬",
+                text: "Der Zug rast auf MrWissen2Go zu. Du kannst ihn umlenken, aber dann würde Simplicissimus sterben. Wer bleibt am Leben?",
+                optionen: ["MrWissen2Go retten", "Simplicissimus retten"],
+                statistik: { a: 55, b: 45 }
+            },
+            {
+                id: 13,
+                bild: "🌍",
+                text: "Der Zug rast auf 5 deutsche Youtuber zu. Du kannst ihn umlenken, aber dann würden 5 internationale Youtuber sterben. Was tust du?",
+                optionen: ["Deutsche retten", "Internationale retten"],
+                statistik: { a: 48, b: 52 }
+            },
+            {
+                id: 14,
+                bild: "🎤",
+                text: "Der Zug rast auf Katja Krasavice zu. Du kannst ihn umlenken, aber dann würde ApoRed sterben. Wer wird gerettet?",
+                optionen: ["Katja retten", "ApoRed retten"],
+                statistik: { a: 29, b: 61 }
+            },
+            {
+                id: 15,
+                bild: "🌉",
+                text: "Du stehst auf einer Brücke. Ein Zug rast auf MrBeast zu. Du könntest Ryan Trahan von der Brücke stoßen, um MrBeast zu retten. Was tust du?",
+                optionen: ["MrBeast retten (Ryan opfern)", "Nichts tun (MrBeast stirbt)"],
+                statistik: { a: 36, b: 64 }
+            },
+            {
+                id: 16,
+                bild: "🌉",
+                text: "Du stehst auf einer Brücke. Von hier siehst du, wie ein Zug mit hoher Geschwindigkeit auf alle bisher genannten Youtuber zurast. Neben dir steht Caseoh. Was tust du?",
+                optionen: ["Caseoh von der Brücke stoßen, um den Zug zu stoppen.", "Nichts tun, da er zu schwer ist."],
+                statistik: { a: 2, b: 98 }
+            },
+            {
+                id: 17,
+                bild: "🍕",
+                text: "Der Zug rast auf Inscope21 zu. Du kannst ihn umlenken, aber dann würde CrispyRob samt Pizza sterben. Was tust du?",
+                optionen: ["Inscope21 retten", "CrispyRob & Pizza retten"],
+                statistik: { a: 41, b: 59 }
+            },
+            {
+                id: 18,
+                bild: "🦷",
+                text: "Der Zug rast auf einen Zahnarzt zu, der dich immer gequält hat. Du kannst ihn umlenken, aber dann würde Unge sterben. Was tust du?",
+                optionen: ["Zahnarzt opfern", "Unge opfern"],
+                statistik: { a: 88, b: 12 }
+            },
+            {
+                id: 19,
+                bild: "🤑",
+                text: "Der Zug rast auf einen Koffer mit 1 Million Euro zu. Du kannst ihn umlenken, aber dann würde Rewinside sterben. Was tust du?",
+                optionen: ["Geld retten", "Rewinside retten"],
+                statistik: { a: 17, b: 83 }
+            },
+            {
+                id: 20,
+                bild: "🐍",
+                text: "Der Zug rast auf einen Hater zu, der dich immer getrollt hat. Du kannst ihn umlenken, aber dann würde Tanzverbot sterben. Was tust du?",
+                optionen: ["Hater opfern", "Tanzverbot opfern"],
+                statistik: { a: 93, b: 7 }
+            }
+        ];
+        
+        // Anime-Modus Daten
+        const animeCharacters = [
+            "Monkey D. Luffy", "Naruto Uzumaki", "Goku", "Ichigo Kurosaki", "Edward Elric",
+            "Tanjiro Kamado", "Eren Yeager", "Senku Ishigami", "Saitama", "Light Yagami",
+            "L Lawliet", "Lelouch vi Britannia", "Rimuru Tempest", "Ainz Ooal Gown", "Mob",
+            "Izuku Midoriya", "Katsuki Bakugo", "Shoto Todoroki", "All Might", "Vegeta",
+            "Piccolo", "Sasuke Uchiha", "Kakashi Hatake", "Itachi Uchiha", "Levi Ackerman",
+            "Mikasa Ackerman", "Armin Arlert", "Alphonse Elric", "Roy Mustang", "Erza Scarlet",
+            "Zenitsu Agatsuma", "Inosuke Hashibira", "Giyu Tomioka", "Kyojuro Rengoku", "Shinobu Kocho",
+            "Gon Freecss", "Killua Zoldyck", "Kurapika", "Leorio Paradinight", "Hisoka Morow",
+            "Jotaro Kujo", "Dio Brando", "Giorno Giovanna", "Josuke Higashikata", "Joseph Joestar",
+            "Sung Jinwoo", "Frieren", "Kafka Hibino", "Anya Forger", "Osamu Dazai"
+        ];
+        
+        const animeQuestions = [
+            "Wen würdest du eher vorm Zug retten?"
+        ];
+        
+        let fragen = fragenKlassisch;
+        
+        // Anime-Modus Spielzustand
+        let animeCharacterPool = [];
+        let animeTop3 = [];
+        let animeCurrentPair = [];
+        let animeUsedQuestions = [];
+        
+        // Spielzustand
+        let currentQuestion = 0;
+        let answers = [];
+        let ergebnis = { utilitaristisch: 0, deontologisch: 0 };
+
+        // Dark Mode
+        let darkMode = false;
+
+        function toggleDarkmode() {
+            darkMode = !darkMode;
+            document.documentElement.classList.toggle('dark', darkMode);
+            // Toggle button text
+            const sun = document.querySelector('.sun');
+            const moon = document.querySelector('.moon');
+            if (darkMode) {
+                sun.style.display = 'none';
+                moon.style.display = 'inline';
+            } else {
+                sun.style.display = 'inline';
+                moon.style.display = 'none';
+            }
+        }
+
+        // Spiel starten
+        function startGame() {
+            document.getElementById('startPage').classList.add('hidden');
+            document.getElementById('questionPage').classList.remove('hidden');
+            document.getElementById('progressContainer').style.display = 'block';
+            showQuestion();
+        }
+
+        // Frage anzeigen
+        function showQuestion() {
+            const question = fragen[currentQuestion];
+            document.getElementById('questionNumber').textContent = `Frage ${currentQuestion + 1} von ${fragen.length}`;
+            document.getElementById('questionImage').textContent = question.bild;
+            document.getElementById('questionText').textContent = question.text;
+            document.getElementById('statistik').style.display = 'none';
+            // Buttons aktivieren
+            document.getElementById('option1').disabled = false;
+            document.getElementById('option2').disabled = false;
+            // Progress Bar
+            const progress = ((currentQuestion + 1) / fragen.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            // Button-Text für Youtuber-Modus
+            if (spielModus === 'youtuber' && question.optionen) {
+                document.getElementById('option1').textContent = '🟢 ' + question.optionen[0];
+                document.getElementById('option2').textContent = '🔴 ' + question.optionen[1];
+            } else {
+                document.getElementById('option1').textContent = '✅ Hebel betätigen';
+                document.getElementById('option2').textContent = '🚫 Nichts tun';
+            }
+            
+            // Verstecke Skip-Button in anderen Modi
+            document.getElementById('animeSkipContainer').style.display = 'none';
+        }
+
+        // Antwort auswählen
+        function selectAnswer(antwort) {
+            if (spielModus === 'anime') {
+                selectAnimeAnswer(antwort);
+                return;
+            }
+            
+            answers.push(antwort);
+            if (spielModus === 'klassisch') {
+                if (antwort) {
+                    ergebnis.utilitaristisch++;
+                } else {
+                    ergebnis.deontologisch++;
+                }
+            }
+            document.getElementById('option1').disabled = true;
+            document.getElementById('option2').disabled = true;
+            zeigeStatistik(fragen[currentQuestion].statistik);
+        }
+
+        // Statistik anzeigen
+        function zeigeStatistik(stat) {
+            const statistikDiv = document.getElementById('statistik');
+            statistikDiv.style.display = 'block';
+            const statBar1 = document.getElementById('statBar1');
+            const statBar2 = document.getElementById('statBar2');
+            const statText = document.getElementById('statText');
+            // Animierte Balken
+            setTimeout(() => {
+                statBar1.style.width = stat.a + '%';
+                statBar2.style.width = stat.b + '%';
+                statBar1.textContent = stat.a + '%';
+                statBar2.textContent = stat.b + '%';
+            }, 200);
+            statText.textContent = `${stat.a}% wählten 'Hebel betätigen', ${stat.b}% wählten 'Nichts tun'`;
+            // Button Text ändern
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestion < fragen.length - 1) {
+                nextBtn.textContent = '➡️ Nächste Frage';
+                nextBtn.onclick = nextQuestion;
+            } else {
+                nextBtn.textContent = '🎯 Auswertung anzeigen';
+                nextBtn.onclick = showResults;
+            }
+        }
+
+        // Nächste Frage
+        function nextQuestion() {
+            currentQuestion++;
+            showQuestion();
+        }
+
+        // Ergebnisse anzeigen
+        function showResults() {
+            document.getElementById('questionPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+            document.getElementById('progressContainer').style.display = 'none';
+            if (spielModus === 'klassisch') {
+                // Klassische Auswertung
+                const interventions = ergebnis.utilitaristisch;
+                const nonInterventions = ergebnis.deontologisch;
+                let resultData;
+                if (interventions >= 13) {
+                    resultData = {
+                        icon: '⚖️',
+                        title: 'Der knallharte Utilitarist',
+                        description: 'Du bist kompromisslos und stellst das große Ganze immer über das Individuum. Für dich zählt nur das Endergebnis, auch wenn es moralisch schwer zu rechtfertigen ist.'
+                    };
+                } else if (interventions >= 10) {
+                    resultData = {
+                        icon: '🤔',
+                        title: 'Der pragmatische Entscheider',
+                        description: 'Du bist bereit, schwierige Entscheidungen zu treffen, wägt aber immer noch ab. Du bist flexibel, aber nicht skrupellos.'
+                    };
+                } else if (interventions >= 7) {
+                    resultData = {
+                        icon: '🧑‍⚖️',
+                        title: 'Der situationsabhängige Abwäger',
+                        description: 'Du entscheidest je nach Situation und bist offen für verschiedene Perspektiven. Du bist weder starr noch radikal.'
+                    };
+                } else if (interventions >= 4) {
+                    resultData = {
+                        icon: '🛡️',
+                        title: 'Der Prinzipientreue',
+                        description: 'Du folgst festen Prinzipien und Regeln. Für dich gibt es moralische Grenzen, die nicht überschritten werden dürfen.'
+                    };
+                } else {
+                    resultData = {
+                        icon: '🦸',
+                        title: 'Der soziale Idealist',
+                        description: 'Du bist sehr empathisch, stellst das Individuum über das Kollektiv und würdest nie absichtlich jemandem schaden – selbst wenn es das größere Übel verhindert.'
+                    };
+                }
+                document.getElementById('resultIcon').textContent = resultData.icon;
+                document.getElementById('resultTitle').textContent = resultData.title;
+                document.getElementById('resultDescription').textContent = resultData.description;
+                document.getElementById('interventionCount').textContent = interventions;
+                document.getElementById('nonInterventionCount').textContent = nonInterventions;
+            } else {
+                // Youtuber-Modus: Liste, wer wie oft gerettet/geopfert wurde
+                const influencerNamen = [
+                    ["Rezo", "Julien Bam"],
+                    ["Tanzverbot", "KuchenTV"],
+                    ["MrBeast", "Ryan Trahan"],
+                    ["Laserluca", "Paluten"],
+                    ["MontanaBlack", "Knossi"],
+                    ["Shirin David", "Katja Krasavice"],
+                    ["Papaplatte", "Trymacs"],
+                    ["Laserluca", "MckyTV"],
+                    ["Julia Beautx", "Bibi"],
+                    ["PewDiePie", "Markiplier"],
+                    ["MckyTV", "Amar"],
+                    ["MrWissen2Go", "Simplicissimus"],
+                    ["5 deutsche Youtuber", "5 internationale Youtuber"],
+                    ["Katja Krasavice", "ApoRed"],
+                    ["MrBeast", "Ryan Trahan"],
+                    ["Caseoh", "Alle anderen"],
+                    ["Inscope21", "CrispyRob & Pizza"],
+                    ["Zahnarzt", "Unge"],
+                    ["Geldkoffer", "Rewinside"],
+                    ["Hater", "Tanzverbot"]
+                ];
+                const gerettet = {};
+                const geopfert = {};
+                for (let i = 0; i < fragen.length; i++) {
+                    const idxGerettet = answers[i] ? 0 : 1;
+                    const idxGeopfert = answers[i] ? 1 : 0;
+                    const nameGerettet = influencerNamen[i][idxGerettet];
+                    const nameGeopfert = influencerNamen[i][idxGeopfert];
+                    if (!gerettet[nameGerettet]) gerettet[nameGerettet] = 0;
+                    if (!geopfert[nameGeopfert]) geopfert[nameGeopfert] = 0;
+                    gerettet[nameGerettet]++;
+                    geopfert[nameGeopfert]++;
+                }
+                // Erstelle Listen-HTML
+                let html = '<h3>Gerettet:</h3><ul>';
+                Object.entries(gerettet).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
+                    html += `<li><strong>${name}</strong>: ${count}x</li>`;
+                });
+                html += '</ul><h3>Geopfert:</h3><ul>';
+                Object.entries(geopfert).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
+                    html += `<li><strong>${name}</strong>: ${count}x</li>`;
+                });
+                html += '</ul>';
+                document.getElementById('resultIcon').textContent = '📊';
+                document.getElementById('resultTitle').textContent = 'Dein Youtuber-Dilemma-Ergebnis';
+                document.getElementById('resultDescription').innerHTML = html;
+                document.getElementById('interventionCount').textContent = '-';
+                document.getElementById('nonInterventionCount').textContent = '-';
+            }
+        }
+
+        // Spiel neu starten
+        function restartGame() {
+            currentQuestion = 0;
+            answers = [];
+            ergebnis = { utilitaristisch: 0, deontologisch: 0 };
+            
+            // Reset anime mode state
+            animeCharacterPool = [];
+            animeTop3 = [];
+            animeCurrentPair = [];
+            animeUsedQuestions = [];
+            animeChampion = null;
+            animeRemainingChallengers = [];
+            
+            document.getElementById('resultPage').classList.add('hidden');
+            document.getElementById('startPage').classList.remove('hidden');
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('animeSkipContainer').style.display = 'none';
+        }
+
+        // Anime Mode Funktionen
+        let animeChampion = null; // Der aktuelle Champion
+        let animeRemainingChallengers = []; // Verbleibende Herausforderer
+        
+        function initAnimeMode() {
+            animeCharacterPool = [...animeCharacters];
+            animeTop3 = [];
+            animeCurrentPair = [];
+            animeUsedQuestions = [];
+            currentQuestion = 0;
+            answers = [];
+            
+            // Wähle zufällig den ersten Champion
+            const randomIndex = Math.floor(Math.random() * animeCharacters.length);
+            animeChampion = animeCharacters[randomIndex];
+            animeRemainingChallengers = animeCharacters.filter(char => char !== animeChampion);
+        }
+
+        function getRandomAnimeQuestion() {
+            const availableQuestions = animeQuestions.filter((_, index) => !animeUsedQuestions.includes(index));
+            if (availableQuestions.length === 0) {
+                animeUsedQuestions = [];
+                return animeQuestions[Math.floor(Math.random() * animeQuestions.length)];
+            }
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            const originalIndex = animeQuestions.indexOf(availableQuestions[randomIndex]);
+            animeUsedQuestions.push(originalIndex);
+            return availableQuestions[randomIndex];
+        }
+
+        function getNextChallenger() {
+            if (animeRemainingChallengers.length === 0) {
+                return null;
+            }
+            const randomIndex = Math.floor(Math.random() * animeRemainingChallengers.length);
+            const challenger = animeRemainingChallengers[randomIndex];
+            return challenger;
+        }
+
+        function showAnimeQuestion() {
+            if (animeRemainingChallengers.length === 0) {
+                showAnimeResult();
+                return;
+            }
+
+            const challenger = getNextChallenger();
+            if (!challenger) {
+                showAnimeResult();
+                return;
+            }
+
+            animeCurrentPair = [animeChampion, challenger];
+            
+            const question = getRandomAnimeQuestion();
+            
+            document.getElementById('questionNumber').textContent = `Kampf ${currentQuestion + 1} - Champion vs Herausforderer`;
+            document.getElementById('questionImage').textContent = '🥊';
+            document.getElementById('questionText').textContent = question;
+            document.getElementById('statistik').style.display = 'none';
+            document.getElementById('option1').disabled = false;
+            document.getElementById('option2').disabled = false;
+            
+            const totalFights = animeCharacters.length - 1;
+            const progress = ((currentQuestion + 1) / totalFights) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            document.getElementById('option1').textContent = `👑 ${animeChampion} (Champion)`;
+            document.getElementById('option2').textContent = `⚔️ ${challenger} (Herausforderer)`;
+            
+            // Zeige Skip-Button nur im Anime-Modus
+            document.getElementById('animeSkipContainer').style.display = 'block';
+        }
+
+        function selectAnimeAnswer(choice) {
+            // Konvertiere boolean zu Array-Index: true = 0 (Option 1), false = 1 (Option 2)
+            const choiceIndex = choice ? 0 : 1;
+            
+            const winner = animeCurrentPair[choiceIndex];
+            const loser = animeCurrentPair[1 - choiceIndex];
+            
+            // Entferne den Verlierer aus den Herausforderern
+            animeRemainingChallengers = animeRemainingChallengers.filter(char => char !== loser);
+            
+            // Der Gewinner wird der neue Champion
+            animeChampion = winner;
+            
+            answers.push(winner);
+            
+            document.getElementById('option1').disabled = true;
+            document.getElementById('option2').disabled = true;
+            
+            // Zeige Kampfergebnis
+            document.getElementById('statistik').style.display = 'block';
+            if (choiceIndex === 0) {
+                document.getElementById('statistik').innerHTML = `
+                    <p>👑 <strong>${winner}</strong> verteidigt den Titel!</p>
+                    <p>Verbleibende Herausforderer: ${animeRemainingChallengers.length}</p>
+                `;
+            } else {
+                document.getElementById('statistik').innerHTML = `
+                    <p>🔥 <strong>${winner}</strong> ist der neue Champion!</p>
+                    <p>Verbleibende Herausforderer: ${animeRemainingChallengers.length}</p>
+                `;
+            }
+            
+            setTimeout(() => {
+                currentQuestion++;
+                showAnimeQuestion();
+            }, 2500);
+        }
+
+        function showAnimeResult() {
+            // Zähle wie oft jeder Charakter gewählt wurde
+            const characterCounts = {};
+            answers.forEach(char => {
+                characterCounts[char] = (characterCounts[char] || 0) + 1;
+            });
+            
+            // Sortiere nach Häufigkeit für Statistiken
+            const sortedChars = Object.entries(characterCounts)
+                .sort((a, b) => b[1] - a[1]);
+            
+            const totalFights = animeCharacters.length - 1;
+            const championWins = characterCounts[animeChampion] || 0;
+            const winRate = Math.round((championWins / totalFights) * 100);
+            
+            let html = `<h3>🏆 Dein ultimativer Anime-Champion:</h3>`;
+            html += `<div class="anime-champion">`;
+            html += `<div class="champion-card">`;
+            html += `<h2>👑 ${animeChampion}</h2>`;
+            html += `<p>Siege: ${championWins} von ${totalFights} Kämpfen</p>`;
+            html += `<p>Siegesrate: ${winRate}%</p>`;
+            html += `</div></div>`;
+            
+            if (sortedChars.length > 1) {
+                html += '<h3>📊 Deine Kampf-Statistiken:</h3>';
+                html += '<div class="fight-stats">';
+                
+                const topFighters = sortedChars.slice(0, 5);
+                topFighters.forEach(([char, wins], index) => {
+                    const isChampion = char === animeChampion;
+                    html += `<div class="fighter-stat ${isChampion ? 'champion-stat' : ''}">`;
+                    html += `${isChampion ? '👑' : '🥊'} <strong>${char}</strong>: ${wins} Siege`;
+                    html += `</div>`;
+                });
+                
+                html += '</div>';
+            }
+            
+            html += '<h3>🎮 Turnier-Info:</h3>';
+            html += `<p>Gesamte Kämpfe: ${currentQuestion}</p>`;
+            html += `<p>Dein Kampfstil: ${winRate > 70 ? 'Loyal zum Favoriten' : winRate > 50 ? 'Ausgewogen' : 'Experimentierfreudig'}</p>`;
+            html += `<p>Anime-Kenner-Level: ${Math.min(95, Math.floor(Math.random() * 20) + 75)}%</p>`;
+            
+            document.getElementById('questionPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+            document.getElementById('resultIcon').textContent = '🏆';
+            document.getElementById('resultTitle').textContent = 'Anime K.O.-Turnier Abgeschlossen!';
+            document.getElementById('resultDescription').innerHTML = html;
+            document.getElementById('interventionCount').textContent = '-';
+            document.getElementById('nonInterventionCount').textContent = '-';
+        }
+
+        // Dark Mode initialisieren
+        document.querySelector('.moon').style.display = 'none';
+
+        document.getElementById('classicBtn').addEventListener('click', function() {
+            spielModus = 'klassisch';
+            fragen = fragenKlassisch;
+            document.getElementById('startPage').classList.add('hidden');
+            document.getElementById('questionPage').classList.remove('hidden');
+            document.getElementById('progressContainer').style.display = 'block';
+            currentQuestion = 0;
+            answers = [];
+            ergebnis = { utilitaristisch: 0, deontologisch: 0 };
+            showQuestion();
+        });
+        document.getElementById('ytBtn').addEventListener('click', function() {
+            spielModus = 'youtuber';
+            fragen = fragenYoutuber;
+            document.getElementById('startPage').classList.add('hidden');
+            document.getElementById('questionPage').classList.remove('hidden');
+            document.getElementById('progressContainer').style.display = 'block';
+            currentQuestion = 0;
+            answers = [];
+            ergebnis = { utilitaristisch: 0, deontologisch: 0 };
+            showQuestion();
+        });
+        
+        document.getElementById('animeBtn').addEventListener('click', function() {
+            spielModus = 'anime';
+            initAnimeMode();
+            document.getElementById('startPage').classList.add('hidden');
+            document.getElementById('questionPage').classList.remove('hidden');
+            document.getElementById('progressContainer').style.display = 'block';
+            showAnimeQuestion();
+        });
+    </script>
+</body>
+</html>

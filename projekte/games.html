@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/x-icon" href="assets/universal/favicon.png">
+    <link rel="icon" type="image/x-icon" href="assets/universal/favicon.png">
 
     <title>Spiele Portfolio</title>
     <style>
@@ -936,6 +936,14 @@
                 image: "../assets/projekte/games/ssp.png",
                 link: "ssp.html"
             }
+
+            //trolly game
+            {
+                title: "Ein Dilemma Spiel",
+                description: "Sollen lieber 5 oder eine Person von einem Zug überfahren werden? Entscheide dich weise!.",
+                image: "../assets/projekte/games/trolly.jpg",
+                link: "trolly.html"
+            }
         ];
 
         // DOM Elements
@@ -1076,21 +1084,41 @@
             
             const formStatus = document.querySelector('.form-status');
             formStatus.style.display = 'block';
+            formStatus.className = 'form-status';
+            formStatus.textContent = 'Sende Nachricht...';
             
-            // Simulate form submission
-            setTimeout(() => {
-                formStatus.className = 'form-status success';
-                formStatus.textContent = 'Nachricht erfolgreich gesendet!';
+            const formData = new FormData(this);
+            
+            // Add file if present
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+            }
+            
+            fetch('send_mail.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                formStatus.className = `form-status ${data.success ? 'success' : 'error'}`;
+                formStatus.textContent = data.message;
                 
-                // Reset form
-                contactForm.reset();
-                fileName.textContent = '';
-                
-                // Hide status message after some time
-                setTimeout(() => {
-                    formStatus.style.display = 'none';
-                }, 3000);
-            }, 1500);
+                if (data.success) {
+                    // Reset form
+                    contactForm.reset();
+                    fileName.textContent = '';
+                    
+                    // Hide status message after some time
+                    setTimeout(() => {
+                        formStatus.style.display = 'none';
+                    }, 3000);
+                }
+            })
+            .catch(error => {
+                formStatus.className = 'form-status error';
+                formStatus.textContent = 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.';
+                console.error('Error:', error);
+            });
         });
 
         // Scroll Animation
