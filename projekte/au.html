@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragt! - Multiplayer Party Spiel</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #333;
+            --text-light: #666;
+            --border-color: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            --card-bg: rgba(45, 55, 72, 0.95);
+            --text-color: #e2e8f0;
+            --text-light: #a0aec0;
+            --border-color: #4a5568;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --glass-bg: rgba(45, 55, 72, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-color);
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideIn 0.6s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            min-width: 150px;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 1rem;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .players-list {
+            background: var(--glass-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+        }
+
+        .player {
+            background: var(--glass-bg);
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .question-card {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .question-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1rem;
+            margin: 15px 0;
+            background: var(--card-bg);
+            color: var(--text-color);
+            box-shadow: inset 0 2px 10px var(--shadow);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fact {
+            background: var(--glass-bg);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .game-mode-selector {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .mode-card {
+            background: var(--glass-bg);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .mode-card:hover {
+            background: var(--glass-bg);
+            transform: translateY(-2px);
+            opacity: 0.8;
+        }
+
+        .mode-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .mode-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .mode-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            padding: 10px 15px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            color: var(--text-color);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            background: var(--glass-bg);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+        }
+
+        .question-count-selection {
+            margin: 20px 0;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .count-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .count-btn {
+            padding: 12px 20px;
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 100px;
+        }
+
+        .count-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .count-btn.selected {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .create-room-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .single-player-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+        }
+
+        .single-player-btn:hover {
+            background: linear-gradient(135deg, #218838, #1ea085);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dark-mode-toggle" onclick="toggleDarkMode()">
+        Dark Mode
+    </div>
+    
+    <div class="container">
+        <!-- Home Screen -->
+        <div id="homeScreen" class="card">
+            <h1 class="title">Fragt!</h1>
+            <p class="subtitle">Das ultimative Multiplayer Party Spiel</p>
+            <button class="btn" onclick="showCreateRoom()">Runde Erstellen</button>
+            <button class="btn" onclick="showJoinRoom()">Runde Beitreten</button>
+        </div>
+
+        <!-- Create Room Screen -->
+        <div id="createRoomScreen" class="card hidden">
+            <h2 class="title">Runde Erstellen</h2>
+            <input type="text" id="hostName" class="input" placeholder="Dein Name" maxlength="20">
+            
+            <div class="mode-selection">
+                <h3>Spielmodus wählen:</h3>
+                <div class="mode-cards">
+                    <div class="mode-card" data-mode="random">
+                        <h4>🎲 Zufällige Fragen</h4>
+                        <p>Lustige, zufällige und tiefgehende Fragen für alle</p>
+                    </div>
+                    <div class="mode-card" data-mode="whoWould">
+                        <h4>🤔 Wer würde eher...</h4>
+                        <p>Klassisches Party-Spiel - wer würde am ehesten...?</p>
+                    </div>
+                    <div class="mode-card" data-mode="liar">
+                        <h4>🕵️ Finde den Lügner</h4>
+                        <p>Ein Spieler bekommt eine andere Frage - findet den Lügner!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="question-count-selection" style="display: none;">
+                <h3>Anzahl Fragen wählen:</h3>
+                <div class="count-options">
+                    <button class="count-btn" data-count="3">3 Fragen</button>
+                    <button class="count-btn" data-count="5">5 Fragen</button>
+                    <button class="count-btn" data-count="10">10 Fragen</button>
+                    <button class="count-btn" data-count="all">Alle Fragen</button>
+                </div>
+            </div>
+            
+            <div class="create-room-buttons">
+                <button class="btn" onclick="createRoom()">Multiplayer Raum erstellen</button>
+                <button class="btn single-player-btn" onclick="startSinglePlayer()">🎮 Einzelspieler</button>
+            </div>
+            <button class="btn" onclick="showHome()">Zurück</button>
+        </div>
+
+        <!-- Join Room Screen -->
+        <div id="joinRoomScreen" class="card hidden">
+            <h2 class="title">Runde Beitreten</h2>
+            <input type="text" id="playerName" class="input" placeholder="Dein Name" maxlength="20">
+            <input type="text" id="roomCode" class="input" placeholder="Runde Code" maxlength="6">
+            <button class="btn" onclick="joinRoom()">Runde Beitreten</button>
+            <button class="btn" onclick="showHome()">Zurück</button>
+        </div>
+
+        <!-- Lobby Screen -->
+        <div id="lobbyScreen" class="card hidden">
+            <h2 class="title">Runde: <span id="roomCodeDisplay"></span></h2>
+            <p class="subtitle">Teile diesen Code mit deinen Freunden!</p>
+            <div class="players-list">
+                <h3>Spieler (<span id="playerCount">0</span>/10)</h3>
+                <div id="playersList"></div>
+            </div>
+            <div id="hostControls" class="hidden">
+                <button class="btn" onclick="startGame()">Spiel Starten</button>
+            </div>
+            <button class="btn" onclick="leaveRoom()">Runde Verlassen</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="card hidden">
+            <div id="questionCard" class="question-card">
+                <div class="question-text" id="questionText"></div>
+            </div>
+            <div id="answerSection">
+                <input type="text" id="answerInput" class="answer-input" placeholder="Deine Antwort..." maxlength="100">
+                <button class="btn" onclick="submitAnswer()">Antwort Senden</button>
+            </div>
+            <div id="votingSection" class="hidden">
+                <h3>Wer ist deiner Meinung nach der Lügner?</h3>
+                <div id="votingOptions"></div>
+            </div>
+        </div>
+
+        <!-- Waiting Screen -->
+        <div id="waitingScreen" class="card hidden">
+            <h2 class="title">Warte auf andere...</h2>
+            <div class="spinner"></div>
+            <div class="fact" id="funFact"></div>
+            <div id="waitingPlayersList"></div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="card hidden">
+            <h2 class="title">Ergebnisse</h2>
+            <div id="resultsContent"></div>
+            <button class="btn" onclick="nextRound()">Nächste Runde</button>
+            <button class="btn" onclick="endGame()">Spiel Beenden</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0xNteuuBla_PWJeJhKbyjUYHSFztqjto",
+            authDomain: "askus-421c9.firebaseapp.com",
+            databaseURL: "https://askus-421c9-default-rtdb.firebaseio.com/",
+            projectId: "askus-421c9",
+            storageBucket: "askus-421c9.firebasestorage.app",
+            messagingSenderId: "792475905869",
+            appId: "1:792475905869:web:935254735da27417471104",
+            measurementId: "G-WLKLZ55HBP"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Game state
+        let currentPlayer = {
+            name: '',
+            id: '',
+            isHost: false
+        };
+        let currentRoom = {
+            code: '',
+            gameMode: '',
+            isHost: false,
+            players: {},
+            gameState: 'lobby',
+            currentQuestion: 0,
+            questions: [],
+            answers: {},
+            votes: {},
+            liarId: null,
+            questionCount: 'all',
+            isSinglePlayer: false
+        };
+
+        // Questions database
+        const questions = {
+            random: [
+                "Was ist deine größte Angst?",
+                "Mit wem würdest du gerne zu Abend essen?",
+                "Was war dein peinlichster Moment?",
+                "Welche Superkraft würdest du wählen?",
+                "Was ist dein Traumurlaubsziel?",
+                "Was ist das seltsamste Essen, das du je gegessen hast?",
+                "In welcher Zeitperiode würdest du gerne leben?",
+                "Was ist dein Guilty Pleasure?",
+                "Was ist der beste Rat, den du je bekommen hast?",
+                "Was würdest du an dir ändern?",
+                "Was ist deine Lieblingserinnerung?",
+                "Worauf bist du am meisten stolz?"
+            ],
+            whoWould: [
+                "Wer würde am ehesten berühmt werden?",
+                "Wer würde eine Zombie-Apokalypse am ehesten überleben?",
+                "Wer würde am ehesten Millionär werden?",
+                "Wer würde sich am ehesten in der eigenen Nachbarschaft verlaufen?",
+                "Wer würde am ehesten Pizza zum Frühstück essen?",
+                "Wer würde am ehesten ein Superheld werden?",
+                "Wer würde am ehesten den eigenen Geburtstag vergessen?",
+                "Wer würde am ehesten Profisportler werden?",
+                "Wer würde am ehesten mit Tieren sprechen?",
+                "Wer würde am ehesten die ganze Nacht durchbingen?",
+                "Wer würde am ehesten im Dschungel überleben?",
+                "Wer würde am ehesten Präsident werden?",
+                "Wer würde am ehesten einen Weltrekord aufstellen?",
+                "Wer würde am ehesten in einem Horror-Film als erstes sterben?",
+                "Wer würde am ehesten ein Geheimnis verraten?"
+            ],
+            liar: [
+                {
+                    normal: "Was ist deine Lieblingsfarbe?",
+                    liar: "Was ist dein Lieblings-Parfüm?"
+                },
+                {
+                    normal: "Was ist dein Traumjob?",
+                    liar: "Was ist dein Traumauto?"
+                },
+                {
+                    normal: "Was ist dein Lieblingsfilm?",
+                    liar: "Was ist deine Lieblingsmusik?"
+                },
+                {
+                    normal: "Wohin würdest du gerne reisen?",
+                    liar: "Wo würdest du gerne leben?"
+                },
+                {
+                    normal: "Was ist dein Lieblingsessen?",
+                    liar: "Was ist dein Lieblingsbuch?"
+                },
+                {
+                    normal: "Was ist deine größte Errungenschaft?",
+                    liar: "Was ist dein größtes Bedauern?"
+                },
+                {
+                    normal: "Was macht dich glücklich?",
+                    liar: "Was macht dich wütend?"
+                },
+                {
+                    normal: "Was ist deine Lieblingsjahreszeit?",
+                    liar: "Was ist dein Lieblingsgrund?"
+                },
+                {
+                    normal: "Was ist dein Hobby?",
+                    liar: "Was ist deine Sorge?"
+                },
+                {
+                    normal: "Was ist dein Lieblingssport?",
+                    liar: "Was ist dein Lieblingshemd?"
+                },
+                {
+                    normal: "Was ist dein Lieblingswetter?",
+                    liar: "Was ist dein Lieblingsbetter?"
+                },
+                {
+                    normal: "Was machst du gerne in deiner Freizeit?",
+                    liar: "Was machst du gerne in deiner Arbeitszeit?"
+                },
+                {
+                    normal: "Welches Tier magst du am liebsten?",
+                    liar: "Welches Bier magst du am liebsten?"
+                },
+                {
+                    normal: "Was ist dein Lieblings-Urlaubsort?",
+                    liar: "Was ist dein Lieblings-Arbeitsort?"
+                },
+                {
+                    normal: "Was ist deine Lieblings-App?",
+                    liar: "Was ist deine Lieblings-Suppe?"
+                }
+            ]
+        };
+
+        // Fun facts for waiting screen
+        const funFacts = [
+            "Wusstest du? Oktopusse haben drei Herzen!",
+            "Wusstest du? Honig wird niemals schlecht!",
+            "Wusstest du? Eine Gruppe von Flamingos nennt man 'Flamboyance'!",
+            "Wusstest du? Bananen sind Beeren, aber Erdbeeren nicht!",
+            "Wusstest du? Das Herz einer Garnele ist in ihrem Kopf!",
+            "Wusstest du? Schmetterlinge schmecken mit ihren Füßen!",
+            "Wusstest du? Eine Gruppe von Pandas nennt man 'Embarrassment'!",
+            "Wusstest du? Delfine haben Namen füreinander!",
+            "Wusstest du? Wombat-Kot ist würfelförmig!",
+            "Wusstest du? Seeotter halten sich beim Schlafen an den Händen!",
+            "Wusstest du? Ein Blitz ist fünfmal heißer als die Sonne!",
+            "Wusstest du? Pinguine können bis zu 6 Meter hoch springen!",
+            "Wusstest du? Elefanten können nicht springen!",
+            "Wusstest du? Ein Kolibri ist der einzige Vogel, der rückwärts fliegen kann!",
+            "Wusstest du? Haie sind älter als Bäume!"
+        ];
+
+        // Initialize app
+        window.onload = function() {
+            // Load saved player name
+            const savedName = localStorage.getItem('asksUsPlayerName');
+            if (savedName) {
+                document.getElementById('hostName').value = savedName;
+                document.getElementById('playerName').value = savedName;
+            }
+
+            // Load dark mode preference
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.body.setAttribute('data-theme', 'dark');
+                updateDarkModeToggle(true);
+            }
+
+            // Setup mode selection
+            setupModeSelection();
+        };
+
+        function toggleDarkMode() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.body.removeAttribute('data-theme');
+                localStorage.setItem('darkMode', 'false');
+                updateDarkModeToggle(false);
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('darkMode', 'true');
+                updateDarkModeToggle(true);
+            }
+        }
+
+        function updateDarkModeToggle(isDark) {
+            const toggle = document.querySelector('.dark-mode-toggle');
+            if (isDark) {
+                toggle.innerHTML = ' Light Mode';
+            } else {
+                toggle.innerHTML = ' Dark Mode';
+            }
+        }
+
+        function setupModeSelection() {
+            const modeCards = document.querySelectorAll('.mode-card');
+            const questionCountSection = document.querySelector('.question-count-selection');
+            const countBtns = document.querySelectorAll('.count-btn');
+            
+            modeCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Remove selected class from all cards
+                    modeCards.forEach(c => c.classList.remove('selected'));
+                    // Add selected class to clicked card
+                    card.classList.add('selected');
+                    // Store selected mode
+                    currentRoom.gameMode = card.dataset.mode;
+                    // Show question count selection
+                    questionCountSection.style.display = 'block';
+                });
+            });
+            
+            countBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove selected class from all buttons
+                    countBtns.forEach(b => b.classList.remove('selected'));
+                    // Add selected class to clicked button
+                    btn.classList.add('selected');
+                    // Store selected count
+                    currentRoom.questionCount = btn.dataset.count;
+                });
+            });
+        }
+
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.card');
+            screens.forEach(screen => screen.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        function showHome() {
+            showScreen('homeScreen');
+            
+            // Reset room state
+            currentRoom = {
+                code: '',
+                gameMode: '',
+                isHost: false,
+                players: {},
+                gameState: 'lobby',
+                currentQuestion: 0,
+                questions: [],
+                answers: {},
+                votes: {},
+                liarId: null,
+                questionCount: 'all',
+                isSinglePlayer: false
+            };
+            
+            // Reset UI selections
+            document.querySelectorAll('.mode-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.count-btn').forEach(btn => btn.classList.remove('selected'));
+            if (document.querySelector('.question-count-selection')) {
+                document.querySelector('.question-count-selection').style.display = 'none';
+            }
+        }
+        
+        function showHostRoom() {
+            showScreen('createRoomScreen');
+            // Reset selections when showing host room
+            document.querySelectorAll('.mode-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.count-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelector('.question-count-selection').style.display = 'none';
+            currentRoom.gameMode = '';
+            currentRoom.questionCount = '';
+        }
+        
+        function showJoinRoom() {
+            showScreen('joinRoomScreen');
+        }
+
+        async function createRoom() {
+            const hostName = document.getElementById('hostName').value.trim();
+            if (!hostName) {
+                alert('Bitte gib deinen Namen ein!');
+                return;
+            }
+            if (!currentRoom.gameMode) {
+                alert('Bitte wähle einen Spielmodus!');
+                return;
+            }
+            if (!currentRoom.questionCount) {
+                alert('Bitte wähle die Anzahl der Fragen!');
+                return;
+            }
+
+            // Save player name
+            localStorage.setItem('asksUsPlayerName', hostName);
+
+            // Generate room code and player ID
+            currentRoom.code = generateRoomCode();
+            currentPlayer.id = generatePlayerId();
+            currentPlayer.name = hostName;
+            currentPlayer.isHost = true;
+
+            try {
+                // Create room in Firebase
+                await database.ref(`rooms/${currentRoom.code}`).set({
+                    gameMode: currentRoom.gameMode,
+                    gameState: 'lobby',
+                    currentQuestion: 0,
+                    questionCount: currentRoom.questionCount,
+                    maxQuestions: currentRoom.questionCount === 'all' ? questions[currentRoom.gameMode].length : parseInt(currentRoom.questionCount),
+                    players: {
+                        [currentPlayer.id]: {
+                            name: hostName,
+                            isHost: true,
+                            connected: true
+                        }
+                    },
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Listen for room changes
+                listenToRoom();
+                showLobby();
+            } catch (error) {
+                console.error('Error creating room:', error);
+                alert('Fehler beim Erstellen des Raums. Bitte versuche es erneut.');
+            }
+        }
+
+        async function joinRoom() {
+            const playerName = document.getElementById('playerName').value.trim();
+            const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+            
+            if (!playerName) {
+                alert('Bitte gib deinen Namen ein!');
+                return;
+            }
+            if (!roomCode) {
+                alert('Bitte gib einen Raum-Code ein!');
+                return;
+            }
+
+            // Save player name
+            localStorage.setItem('asksUsPlayerName', playerName);
+
+            try {
+                // Check if room exists
+                const roomSnapshot = await database.ref(`rooms/${roomCode}`).once('value');
+                if (!roomSnapshot.exists()) {
+                    alert('Raum nicht gefunden!');
+                    return;
+                }
+
+                const roomData = roomSnapshot.val();
+                const playerCount = Object.keys(roomData.players || {}).length;
+                
+                if (playerCount >= 10) {
+                    alert('Raum ist voll!');
+                    return;
+                }
+
+                // Generate player ID and join room
+                currentPlayer.id = generatePlayerId();
+                currentPlayer.name = playerName;
+                currentPlayer.isHost = false;
+                currentRoom.code = roomCode;
+                currentRoom.gameMode = roomData.gameMode;
+
+                await database.ref(`rooms/${roomCode}/players/${currentPlayer.id}`).set({
+                    name: playerName,
+                    isHost: false,
+                    connected: true
+                });
+
+                // Listen for room changes
+                listenToRoom();
+                showLobby();
+            } catch (error) {
+                console.error('Error joining room:', error);
+                alert('Fehler beim Beitreten des Raums. Bitte versuche es erneut.');
+            }
+        }
+
+        function listenToRoom() {
+            database.ref(`rooms/${currentRoom.code}`).on('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    alert('Raum wurde geschlossen.');
+                    showHome();
+                    return;
+                }
+
+                const roomData = snapshot.val();
+                currentRoom = { ...currentRoom, ...roomData };
+                
+                updateLobby(roomData);
+                
+                if (roomData.gameState === 'playing') {
+                    showGameScreen(roomData);
+                } else if (roomData.gameState === 'voting') {
+                    showVotingScreen(roomData);
+                } else if (roomData.gameState === 'results') {
+                    showResultsScreen(roomData);
+                }
+            });
+        }
+
+        function showLobby() {
+            showScreen('lobbyScreen');
+            document.getElementById('roomCodeDisplay').textContent = currentRoom.code;
+            
+            if (currentPlayer.isHost) {
+                document.getElementById('hostControls').classList.remove('hidden');
+            }
+        }
+
+        function updateLobby(roomData) {
+            const playersList = document.getElementById('playersList');
+            const playerCount = document.getElementById('playerCount');
+            
+            const players = Object.values(roomData.players || {});
+            playerCount.textContent = players.length;
+            
+            playersList.innerHTML = '';
+            players.forEach(player => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player';
+                playerDiv.innerHTML = `
+                    <span>${player.name}</span>
+                    <span>${player.isHost ? '' : ''}</span>
+                `;
+                playersList.appendChild(playerDiv);
+            });
+        }
+
+        async function startGame() {
+            if (currentRoom.isSinglePlayer) {
+                showQuestion();
+                return;
+            }
+            
+            const playerCount = Object.keys(currentRoom.players || {}).length;
+            if (playerCount < 2) {
+                alert('Mindestens 2 Spieler werden benötigt!');
+                return;
+            }
+
+            if (!currentPlayer.isHost) return;
+
+            try {
+                await database.ref(`rooms/${currentRoom.code}`).update({
+                    gameState: 'playing',
+                    currentQuestion: 0
+                });
+            } catch (error) {
+                console.error('Error starting game:', error);
+            }
+        }
+
+        function showGameScreen(roomData) {
+            showScreen('gameScreen');
+            
+            const questionIndex = roomData.currentQuestion || 0;
+            let questionText = '';
+            
+            if (currentRoom.gameMode === 'liar') {
+                // Randomly assign liar role
+                const playerIds = Object.keys(roomData.players);
+                const liarIndex = Math.floor(Math.random() * playerIds.length);
+                const isLiar = playerIds[liarIndex] === currentPlayer.id;
+                
+                const questionSet = questions.liar[questionIndex];
+                questionText = isLiar ? questionSet.liar : questionSet.normal;
+            } else {
+                const questionSet = questions[currentRoom.gameMode];
+                questionText = questionSet[questionIndex];
+            }
+            
+            document.getElementById('questionText').textContent = questionText;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('answerSection').classList.remove('hidden');
+            document.getElementById('votingSection').classList.add('hidden');
+        }
+
+        async function submitAnswer() {
+            const answer = document.getElementById('answerInput').value.trim();
+            if (!answer) {
+                alert('Bitte gib eine Antwort ein!');
+                return;
+            }
+
+            try {
+                await database.ref(`rooms/${currentRoom.code}/answers/${currentPlayer.id}`).set({
+                    answer: answer,
+                    playerName: currentPlayer.name,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                document.getElementById('answerSection').classList.add('hidden');
+                showWaitingScreen();
+                
+                // Check if all players have answered
+                checkAllAnswered();
+            } catch (error) {
+                console.error('Error submitting answer:', error);
+            }
+        }
+
+        async function checkAllAnswered() {
+            const roomSnapshot = await database.ref(`rooms/${currentRoom.code}`).once('value');
+            const roomData = roomSnapshot.val();
+            
+            const playerCount = Object.keys(roomData.players || {}).length;
+            const answerCount = Object.keys(roomData.answers || {}).length;
+            
+            if (answerCount >= playerCount) {
+                if (currentRoom.gameMode === 'liar') {
+                    // Move to voting phase
+                    if (currentPlayer.isHost) {
+                        await database.ref(`rooms/${currentRoom.code}`).update({
+                            gameState: 'voting'
+                        });
+                    }
+                } else {
+                    // Show results
+                    if (currentPlayer.isHost) {
+                        await database.ref(`rooms/${currentRoom.code}`).update({
+                            gameState: 'results'
+                        });
+                    }
+                }
+            }
+        }
+
+        function showWaitingScreen() {
+            showScreen('waitingScreen');
+            
+            // Show random fun fact
+            const randomFact = funFacts[Math.floor(Math.random() * funFacts.length)];
+            document.getElementById('funFact').textContent = randomFact;
+        }
+
+        function showVotingScreen(roomData) {
+            showScreen('gameScreen');
+            document.getElementById('answerSection').classList.add('hidden');
+            document.getElementById('votingSection').classList.remove('hidden');
+            
+            const votingOptions = document.getElementById('votingOptions');
+            votingOptions.innerHTML = '';
+            
+            Object.values(roomData.players).forEach(player => {
+                if (player.name !== currentPlayer.name) {
+                    const button = document.createElement('button');
+                    button.className = 'btn';
+                    button.textContent = player.name;
+                    button.onclick = () => vote(player.name);
+                    votingOptions.appendChild(button);
+                }
+            });
+        }
+
+        async function vote(playerName) {
+            try {
+                await database.ref(`rooms/${currentRoom.code}/votes/${currentPlayer.id}`).set({
+                    vote: playerName,
+                    voter: currentPlayer.name
+                });
+                
+                showWaitingScreen();
+            } catch (error) {
+                console.error('Error voting:', error);
+            }
+        }
+
+        function showResultsScreen(roomData) {
+            showScreen('resultsScreen');
+            
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = '';
+            
+            if (currentRoom.gameMode === 'liar') {
+                // Show voting results
+                const votes = roomData.votes || {};
+                const voteCount = {};
+                
+                Object.values(votes).forEach(vote => {
+                    voteCount[vote.vote] = (voteCount[vote.vote] || 0) + 1;
+                });
+                
+                const sortedVotes = Object.entries(voteCount).sort((a, b) => b[1] - a[1]);
+                
+                resultsContent.innerHTML = '<h3>Voting Results:</h3>';
+                sortedVotes.forEach(([player, count]) => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `${player}: ${count} vote(s)`;
+                    resultsContent.appendChild(div);
+                });
+            } else {
+                // Show all answers
+                const answers = roomData.answers || {};
+                resultsContent.innerHTML = '<h3>Everyone\'s Answers:</h3>';
+                
+                Object.values(answers).forEach(answer => {
+                    const div = document.createElement('div');
+                    div.className = 'player';
+                    div.innerHTML = `<strong>${answer.playerName}:</strong> ${answer.answer}`;
+                    resultsContent.appendChild(div);
+                });
+            }
+        }
+
+        async function nextRound() {
+            if (currentRoom.isSinglePlayer) {
+                showQuestion();
+                return;
+            }
+            
+            const nextQuestion = (currentRoom.currentQuestion || 0) + 1;
+            const maxQuestions = currentRoom.questionCount === 'all' ? questions[currentRoom.gameMode].length : parseInt(currentRoom.questionCount);
+            
+            if (nextQuestion >= maxQuestions) {
+                alert('Keine weiteren Fragen! Spiel beendet.');
+                endGame();
+                return;
+            }
+            
+            try {
+                await database.ref(`rooms/${currentRoom.code}`).update({
+                    gameState: 'playing',
+                    currentQuestion: nextQuestion,
+                    answers: null,
+                    votes: null
+                });
+            } catch (error) {
+                console.error('Error starting next round:', error);
+            }
+        }
+
+        async function endGame() {
+            if (currentRoom.isSinglePlayer) {
+                showHome();
+                return;
+            }
+            showHome();
+            if (currentRoom.isHost) {
+                database.ref(`rooms/${currentRoom.code}`).remove();
+            }
+        }
+
+        function startSinglePlayer() {
+            const hostName = document.getElementById('hostName').value.trim();
+            if (!hostName) {
+                alert('Bitte gib deinen Namen ein!');
+                return;
+            }
+            if (!currentRoom.gameMode) {
+                alert('Bitte wähle einen Spielmodus!');
+                return;
+            }
+            if (!currentRoom.questionCount) {
+                alert('Bitte wähle die Anzahl der Fragen!');
+                return;
+            }
+
+            // Save player name
+            localStorage.setItem('asksUsPlayerName', hostName);
+            
+            // Setup single player game
+            currentRoom.isSinglePlayer = true;
+            currentRoom.isHost = true;
+            currentRoom.code = 'SINGLE';
+            currentRoom.players = {
+                'single': {
+                    name: hostName,
+                    isHost: true,
+                    connected: true
+                }
+            };
+            currentRoom.gameState = 'playing';
+            currentRoom.currentQuestion = 0;
+            currentRoom.answers = {};
+            currentRoom.votes = {};
+            
+            // Start the game
+            showQuestion();
+        }
+        
+        function showSinglePlayerResults() {
+            showScreen('resultsScreen');
+            
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (!resultsContainer) {
+                // Create results container if it doesn't exist
+                const gameScreen = document.getElementById('gameScreen');
+                if (gameScreen) {
+                    gameScreen.innerHTML = '<div id="resultsContainer"></div>';
+                }
+            }
+            
+            const container = document.getElementById('resultsContainer') || document.createElement('div');
+            container.innerHTML = '<h3>🎉 Deine Antworten:</h3>';
+            
+            // Show all answers
+            Object.keys(currentRoom.answers).forEach((questionIndex, index) => {
+                const questionNum = parseInt(questionIndex) + 1;
+                const answer = currentRoom.answers[questionIndex];
+                const questionText = getQuestionText(parseInt(questionIndex));
+                
+                container.innerHTML += `
+                    <div class="result-item" style="margin: 15px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; backdrop-filter: blur(10px);">
+                        <strong>Frage ${questionNum}:</strong> ${questionText}<br>
+                        <em>Deine Antwort:</em> ${answer}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML += '<button class="btn" onclick="endGame()" style="margin-top: 20px;">Neues Spiel starten</button>';
+        }
+        
+        function getQuestionText(questionIndex) {
+            const gameMode = currentRoom.gameMode;
+            if (gameMode === 'liar') {
+                return questions[gameMode][questionIndex].normal;
+            }
+            return questions[gameMode][questionIndex];
+        }
+        
+        function showScreen(screenId) {
+            // Hide all screens
+            const screens = ['homeScreen', 'createRoomScreen', 'joinRoomScreen', 'lobbyScreen', 'gameScreen', 'waitingScreen', 'resultsScreen', 'votingScreen'];
+            screens.forEach(screen => {
+                const element = document.getElementById(screen);
+                if (element) {
+                    element.classList.add('hidden');
+                }
+            });
+            
+            // Show target screen
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+            }
+        }
+        
+        function generateRoomCode() {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        }
+
+        function generatePlayerId() {
+            return Math.random().toString(36).substring(2, 15);
+        }
+
+        async function leaveRoom() {
+            try {
+                if (currentRoom.isSinglePlayer) {
+                    showHome();
+                    return;
+                }
+                
+                await database.ref(`rooms/${currentRoom.code}/players/${currentPlayer.id}`).remove();
+                
+                // If host leaves, delete the room
+                if (currentPlayer.isHost) {
+                    await database.ref(`rooms/${currentRoom.code}`).remove();
+                }
+                
+                showHome();
+            } catch (error) {
+                console.error('Error leaving room:', error);
+            }
+        }
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (currentRoom.code && currentPlayer.id && !currentRoom.isSinglePlayer) {
+                database.ref(`rooms/${currentRoom.code}/players/${currentPlayer.id}`).remove();
+            }
+        });
+    </script>
+</body>
+</html>
