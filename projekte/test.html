@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainify</title>
+    <style>
+        :root {
+            /* Light Mode Colors */
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            --secondary-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --surface-elevated: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Colors */
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+            --secondary-gradient: linear-gradient(135deg, #0891b2 0%, #2563eb 100%);
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-elevated: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #475569;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --success: #059669;
+            --warning: #d97706;
+            --error: #dc2626;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 768px;
+            margin: 0 auto;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .workout-card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workout-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .workout-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 16px 48px var(--shadow);
+        }
+
+        .workout-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .workout-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .workout-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .workout-details {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .complete-btn:disabled {
+            background: #e0e0e0;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .completed {
+            background: #e8f5e8 !important;
+            border-color: #4CAF50 !important;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 12px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+            background: var(--surface-elevated);
+            border-radius: 8px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 14px;
+            color: var(--text-primary);
+            min-height: 50px;
+            padding: 4px;
+        }
+
+        .calendar-day:hover {
+            background: var(--surface-elevated);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .calendar-day.completed {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        /* Remove the old completed after pseudo-element */
+
+        .calendar-day.today {
+            border: 2px solid #6366f1;
+            font-weight: bold;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .calendar-day.has-workout {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .calendar-day.has-rest {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .calendar-day.completed {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            border-color: #f59e0b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .calendar-day.missed {
+            background: #fecaca;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 12px;
+        }
+
+        .calendar-day-indicator {
+            font-size: 9px;
+            line-height: 1;
+            text-align: center;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .profile-section {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .profile-stat {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .profile-stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .profile-stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 768px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-item {
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            color: #666;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .nav-item:hover {
+            background: #f8f9fa;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+            margin-bottom: 80px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .streak-restore {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .streak-restore-btn {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Settings Styles */
+        .settings-section {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .setting-info p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Setting Controls */
+        .setting-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .danger-zone {
+            border: 2px solid var(--error);
+            border-radius: 12px;
+            padding: 16px;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border);
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--primary-gradient);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Profile Picture Upload */
+        .upload-btn {
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .profile-avatar {
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Stats Button */
+        .profile-stats {
+            margin: 20px 0;
+        }
+
+        .stats-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .stats-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        /* Workout Stats Modal */
+        .stats-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            padding: 16px 0;
+        }
+        
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-card h3 {
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+            font-size: 1.1em;
+        }
+        
+        .stat-card .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+        
+        .stat-card .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        /* Achievement Styles */
+        .achievement-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .achievement-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .achievement-card.unlocked {
+            background: linear-gradient(135deg, var(--primary-light), var(--surface));
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+        }
+        
+        .achievement-card.locked {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+        
+        .achievement-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .achievement-icon {
+            font-size: 2em;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--primary-light);
+        }
+        
+        .achievement-info h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.1em;
+        }
+        
+        .achievement-info p {
+            margin: 4px 0 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .achievement-progress {
+            margin-top: 12px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            text-align: center;
+        }
+        
+        .rank-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+        
+        /* Dark mode calendar improvements */
+        [data-theme="dark"] .calendar-day.rest-day {
+            background: linear-gradient(135deg, #5a5a3a, #4a4a2a) !important;
+            color: #fff !important;
+            border: 1px solid #6a6a4a !important;
+        }
+        
+        [data-theme="dark"] .calendar-day.completed {
+            background: linear-gradient(135deg, #ff9500, #ff7b00) !important;
+            color: #fff !important;
+            border: 1px solid #ffb347 !important;
+            box-shadow: 0 0 10px rgba(255, 149, 0, 0.3) !important;
+        }
+        
+        [data-theme="dark"] .calendar-day.missed {
+            background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+            color: #fff !important;
+            border: 1px solid #e67e22 !important;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.3) !important;
+        }
+        
+        [data-theme="dark"] .calendar-day.workout {
+            background: var(--surface) !important;
+            border: 1px solid var(--primary) !important;
+            color: var(--text-primary) !important;
+        }
+        
+        [data-theme="dark"] .calendar-day.workout:hover {
+            background: var(--primary-light) !important;
+        }
+
+        /* Completion Animation */
+        @keyframes celebration {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fireEffect {
+            0% { opacity: 0; transform: translateY(20px) scale(0.5); }
+            50% { opacity: 1; transform: translateY(-10px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-30px) scale(0.8); }
+        }
+
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .celebration-content {
+            text-align: center;
+            color: white;
+        }
+
+        .celebration-emoji {
+            font-size: 80px;
+            animation: celebration 0.6s ease-in-out;
+            margin-bottom: 20px;
+        }
+
+        .fire-effect {
+            position: absolute;
+            font-size: 30px;
+            animation: fireEffect 1s ease-out;
+            pointer-events: none;
+        }
+
+        /* Navigation Update */
+        .navigation {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
+
+        .nav-item {
+            color: var(--text-secondary);
+        }
+
+        .nav-item.active {
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .nav-item:hover {
+            background: var(--surface-elevated);
+        }
+
+        /* Exercise List Styles */
+        .exercise-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: var(--surface-elevated);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .exercise-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .add-exercise-btn {
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .add-exercise-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--shadow);
+        }
+
+        .remove-exercise-btn {
+            background: var(--error);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-exercise-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        /* Modal Close Button */
+        .close {
+            color: var(--text-secondary);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--error);
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .exercise-details {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .remove-exercise-btn {
+                grid-column: span 2;
+                margin-top: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>💪 Trainify</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="coinsDisplay">0</div>
+                    <div class="stat-label">Coins</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="streakDisplay">0</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Startseite -->
+            <div id="homePage" class="page active">
+                <div id="streakRestoreNotification" class="streak-restore" style="display: none;">
+                    <div>😔 Du hast deinen Streak verloren!</div>
+                    <div style="font-size: 12px; margin-top: 5px;">Stelle ihn für 25 Coins wieder her</div>
+                    <button class="streak-restore-btn" onclick="restoreStreak()">Streak wiederherstellen</button>
+                </div>
+                
+                <div id="workoutsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏋️</div>
+                        <h3>Keine Workouts für heute</h3>
+                        <p>Erstelle dein erstes Workout im Profil!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kalenderseite -->
+            <div id="calendarPage" class="page">
+                <h2 style="margin-bottom: 20px; text-align: center;">📅 Trainingskalender</h2>
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="calendar-header">Mo</div>
+                    <div class="calendar-header">Di</div>
+                    <div class="calendar-header">Mi</div>
+                    <div class="calendar-header">Do</div>
+                    <div class="calendar-header">Fr</div>
+                    <div class="calendar-header">Sa</div>
+                    <div class="calendar-header">So</div>
+                </div>
+            </div>
+
+            <!-- Profilseite -->
+            <div id="profilePage" class="page">
+                <div class="profile-section">
+                    <div class="profile-avatar" id="profileAvatar">👤</div>
+                    <div class="profile-name" id="profileName">Trainify User</div>
+                    <div class="profile-stats">
+                        <button class="btn btn-primary" onclick="showWorkoutStats()">📊 Workout Stats</button>
+                        <button class="btn btn-success" onclick="showAchievements()" style="margin-top: 8px;">🏆 Erfolge</button>
+                        <div class="profile-stat">
+                            <div class="profile-stat-number" id="bestStreakDisplay">0</div>
+                            <div class="profile-stat-label">Beste Streak</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-number" id="currentStreakDisplay">0</div>
+                            <div class="profile-stat-label">Aktuelle Streak</div>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="openCreateWorkoutModal()">➕ Workout erstellen</button>
+                        <button class="btn btn-secondary" onclick="openDeleteWorkoutModal()">🗑️ Workout löschen</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Seite -->
+            <div id="settingsPage" class="page">
+                <div class="settings-section">
+                    <h2>⚙️ Einstellungen</h2>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>🌙 Dark Mode</h3>
+                            <p>Wechsle zwischen hellem und dunklem Design</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>👤 Benutzername</h3>
+                            <p>Dein Name wird im Profil angezeigt</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="usernameInput" class="form-input" placeholder="Dein Name" style="width: 150px;">
+                            <button class="btn btn-primary" onclick="updateUsername()" style="margin-left: 8px; padding: 8px 16px;">Speichern</button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>📷 Profilbild</h3>
+                            <p>Lade dein eigenes Profilbild hoch</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="file" id="settingsProfileImageInput" accept="image/*" style="display: none;">
+                            <button class="btn btn-secondary" onclick="document.getElementById('settingsProfileImageInput').click()">📷 Bild wählen</button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>🌈 Header Gradient</h3>
+                            <p>Aktiviere oder deaktiviere den Farbverlauf im Header</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="gradientToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item" id="gradientCustomSetting" style="display: none;">
+                        <div class="setting-info">
+                            <h3>🌈 Custom Gradient</h3>
+                            <p>Bearbeite die Gradient-Farben (CSS Format)</p>
+                        </div>
+                        <div class="setting-control" style="flex-direction: column; align-items: flex-start;">
+                            <input type="text" id="gradientFromInput" placeholder="Von-Farbe (z.B. #ff6b6b)" class="form-input" style="width: 200px; margin-bottom: 8px;">
+                            <input type="text" id="gradientToInput" placeholder="Zu-Farbe (z.B. #4ecdc4)" class="form-input" style="width: 200px; margin-bottom: 8px;">
+                            <button class="btn btn-secondary" onclick="updateCustomGradient()">🎨 Gradient anwenden</button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item danger-zone">
+                        <div class="setting-info">
+                            <h3>🗑️ Alle Daten löschen</h3>
+                            <p>Lösche alle Workouts und Statistiken (nicht rückgängig machbar!)</p>
+                        </div>
+                        <button class="btn btn-danger" onclick="confirmDeleteAllData()">🗑️ Alles löschen</button>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>🎁 Redeem Code</h3>
+                            <p>Löse einen Code ein, um Coins zu erhalten</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="redeemCodeInput" placeholder="Code eingeben..." class="form-input" style="width: 150px; margin-right: 8px;">
+                            <button class="btn btn-primary" onclick="redeemCode()">💎 Einlösen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Workout Erstellen Modal -->
+        <div id="createWorkoutModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Neues Workout erstellen
+                    <span class="close" onclick="closeModal('createWorkoutModal')">&times;</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Workout Name</label>
+                    <input type="text" class="form-input" id="workoutName" placeholder="z.B. Morgen Routine">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Typ</label>
+                    <select class="form-select" id="workoutType" onchange="toggleWorkoutFields()">
+                        <option value="workout">Workout</option>
+                        <option value="rest">Pausentag</option>
+                    </select>
+                </div>
+
+                <div id="workoutFields">
+                    <div class="form-group">
+                        <label class="form-label">Übungen</label>
+                        <div id="exercisesList">
+                            <div class="exercise-item">
+                                <select class="form-select exercise-select" id="initialExerciseSelect">
+                                    <!-- Options werden via JavaScript generiert -->
+                                </select>
+                                <div class="exercise-details">
+                                    <input type="number" class="form-input" placeholder="Sets" min="1" value="3">
+                                    <input type="number" class="form-input" placeholder="Reps" min="1" value="10">
+                                    <button type="button" class="remove-exercise-btn" onclick="removeExercise(this)" style="display: none;">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="add-exercise-btn" onclick="addExercise()">➕ Übung hinzufügen</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Zeitplan</label>
+                    <select class="form-select" id="scheduleType" onchange="toggleScheduleFields()">
+                        <option value="weekly">Fester Wochentag</option>
+                        <option value="interval">Intervall</option>
+                    </select>
+                </div>
+
+                <div id="weeklySchedule" class="form-group">
+                    <label class="form-label">Wochentag</label>
+                    <select class="form-select" id="weekday">
+                        <option value="1">Montag</option>
+                        <option value="2">Dienstag</option>
+                        <option value="3">Mittwoch</option>
+                        <option value="4">Donnerstag</option>
+                        <option value="5">Freitag</option>
+                        <option value="6">Samstag</option>
+                        <option value="0">Sonntag</option>
+                    </select>
+                </div>
+
+                <div id="intervalSchedule" class="form-group" style="display: none;">
+                    <label class="form-label">Alle X Tage</label>
+                    <input type="number" class="form-input" id="intervalDays" min="1" value="2">
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="closeModal('createWorkoutModal')">Abbrechen</button>
+                    <button class="btn btn-primary" onclick="createWorkout()">Erstellen</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Löschen Modal -->
+        <div id="deleteWorkoutModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Workout löschen
+                    <span class="close" onclick="closeModal('deleteWorkoutModal')">&times;</span>
+                </div>
+                <div id="deleteWorkoutsList">
+                    <div class="empty-state">
+                        <div>Keine Workouts vorhanden</div>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="closeModal('deleteWorkoutModal')">Schließen</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Stats Modal -->
+        <div id="workoutStatsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="statsModalTitle">Workout Statistiken</span>
+                    <span class="close" onclick="closeModal('workoutStatsModal')">&times;</span>
+                </div>
+                <div class="modal-body" id="workoutStatsContent">
+                    <!-- Stats content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Achievements Modal -->
+        <div id="achievementsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>🏆 Erfolge & Ränge</span>
+                    <span class="close" onclick="closeModal('achievementsModal')">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="achievement-filters">
+                        <select id="achievementCategorySelect" class="form-select" onchange="filterAchievements()">
+                            <option value="all">Alle Kategorien</option>
+                            <option value="general">Allgemein</option>
+                            <option value="exercise">Übungen</option>
+                        </select>
+                        <input type="text" id="achievementSearchInput" placeholder="Suchen..." class="form-input" oninput="filterAchievements()" style="margin-left: 8px;">
+                    </div>
+                    <div id="achievementsContent">
+                        <!-- Achievements content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="navigation">
+            <button class="nav-item active" onclick="showPage('home')">
+                <div class="nav-icon">🏠</div>
+                <div class="nav-label">Home</div>
+            </button>
+            <button class="nav-item" onclick="showPage('calendar')">
+                <div class="nav-icon">📅</div>
+                <div class="nav-label">Kalender</div>
+            </button>
+            <button class="nav-item" onclick="showPage('profile')">
+                <div class="nav-icon">👤</div>
+                <div class="nav-label">Profil</div>
+            </button>
+            <button class="nav-item" onclick="showPage('settings')">
+                <div class="nav-icon">⚙️</div>
+                <div class="nav-label">Settings</div>
+            </button>
+        </nav>
+
+        <footer class="footer">
+            Made with ❤️ by Ali Malik
+        </footer>
+    </div>
+    
+</body>
+    <script>
+        // App Data Management
+        class TrainifyApp {
+            constructor() {
+                // Initialize app data
+                this.data = {
+                    workouts: [],
+                    coins: 0,
+                    currentStreak: 0,
+                    bestStreak: 0,
+                    lastVisit: new Date().toDateString(),
+                    completedDays: [],
+                    streakLost: false,
+                    dailyCoinsEarned: {},
+                    workoutStats: {},
+                    achievements: {},
+                    firstAppUse: new Date().toDateString()
+                };
+                
+                this.loadData();
+                this.checkStreak();
+                this.updateUI();
+                checkAchievements();
+            }
+
+            loadData() {
+                const savedData = localStorage.getItem('trainifyData');
+                if (savedData) {
+                    this.data = { ...this.data, ...JSON.parse(savedData) };
+                }
+            }
+
+            saveData() {
+                localStorage.setItem('trainifyData', JSON.stringify(this.data));
+            }
+
+            checkStreak() {
+                const today = new Date().toDateString();
+                const lastVisit = new Date(this.data.lastVisit);
+                const todayDate = new Date(today);
+                
+                const daysDifference = Math.floor((todayDate - lastVisit) / (1000 * 60 * 60 * 24));
+                
+                if (daysDifference > 1) {
+                    // Check if user missed any workout days after first app use
+                    const firstUse = new Date(this.data.firstAppUse || this.data.lastVisit);
+                    for (let i = 1; i < daysDifference; i++) {
+                        const checkDate = new Date(lastVisit.getTime() + (i * 24 * 60 * 60 * 1000));
+                        // Only check for missed workouts after first app use
+                        if (checkDate >= firstUse && this.hasWorkoutOnDay(checkDate) && !this.isCompletedDay(checkDate.toDateString())) {
+                            this.data.currentStreak = 0;
+                            this.data.streakLost = true;
+                            break;
+                        }
+                    }
+                }
+                
+                this.data.lastVisit = today;
+                this.saveData();
+            }
+
+            hasWorkoutOnDay(date) {
+                return this.data.workouts.some(workout => {
+                    if (workout.scheduleType === 'weekly') {
+                        return date.getDay() === workout.weekday;
+                    } else if (workout.scheduleType === 'interval') {
+                        const startDate = new Date(workout.startDate);
+                        const daysDiff = Math.floor((date - startDate) / (1000 * 60 * 60 * 24));
+                        return daysDiff >= 0 && daysDiff % workout.intervalDays === 0;
+                    }
+                    return false;
+                });
+            }
+
+            isCompletedDay(dateString) {
+                return this.data.completedDays.some(day => day.includes(dateString));
+            }
+
+            getTodaysWorkouts() {
+                const today = new Date();
+                return this.data.workouts.filter(workout => {
+                    if (workout.scheduleType === 'weekly') {
+                        return today.getDay() === workout.weekday;
+                    } else if (workout.scheduleType === 'interval') {
+                        const startDate = new Date(workout.startDate);
+                        const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+                        return daysDiff >= 0 && daysDiff % workout.intervalDays === 0;
+                    }
+                    return false;
+                }).map(workout => ({
+                    ...workout,
+                    completed: this.isWorkoutCompleted(workout.id, today.toDateString())
+                }));
+            }
+
+            isWorkoutCompleted(workoutId, dateString) {
+                return this.data.completedDays.some(day => 
+                    day.includes(dateString) && day.includes(workoutId)
+                );
+            }
+
+            completeWorkout(workoutId) {
+                const today = new Date().toDateString();
+                const completionKey = `${workoutId}-${today}`;
+                
+                if (!this.data.completedDays.includes(completionKey)) {
+                    this.data.completedDays.push(completionKey);
+                    
+                    // Check if coin can be earned today
+                    const canEarnCoin = !this.data.dailyCoinsEarned[today];
+                    
+                    if (canEarnCoin) {
+                        this.data.coins++;
+                        this.data.dailyCoinsEarned[today] = true;
+                    }
+                    
+                    // Update workout stats
+                    const workout = this.data.workouts.find(w => w.id === workoutId);
+                    if (workout && workout.exercises) {
+                        workout.exercises.forEach(exercise => {
+                            if (!this.data.workoutStats[exercise.name]) {
+                                this.data.workoutStats[exercise.name] = { sets: 0, reps: 0, completions: 0 };
+                            }
+                            this.data.workoutStats[exercise.name].sets += exercise.sets;
+                            this.data.workoutStats[exercise.name].reps += exercise.sets * exercise.reps;
+                            this.data.workoutStats[exercise.name].completions++;
+                        });
+                    }
+                    
+                    this.checkStreak();
+                    this.saveData();
+                    this.updateUI();
+                    
+                    // Check for new achievements
+                    checkAchievements();
+                    
+                    // Show celebration with coin info
+                    const message = canEarnCoin ? 
+                        'Workout abgeschlossen! +1 Coin verdient! 🔥' : 
+                        'Workout abgeschlossen! (Coin-Limit für heute erreicht) 🔥';
+                    showCelebration('🔥', message);
+                }
+            }
+
+            createWorkout(workoutData) {
+                workoutData.id = Date.now().toString();
+                this.data.workouts.push(workoutData);
+                this.saveData();
+                this.updateUI();
+                
+                // Check for achievements (first workout)
+                checkAchievements();
+            }
+
+            deleteWorkout(workoutId) {
+                this.data.workouts = this.data.workouts.filter(w => w.id !== workoutId);
+                this.saveData();
+                this.updateUI();
+            }
+
+            restoreStreak() {
+                if (this.data.coins >= 25) {
+                    this.data.coins -= 25;
+                    this.data.currentStreak = this.data.bestStreak;
+                    this.data.streakLost = false;
+                    this.saveData();
+                    this.updateUI();
+                    showCelebration('🔥', 'Streak wiederhergestellt!');
+                }
+            }
+
+            updateUI() {
+                // Update coins display
+                const coinsEl = document.getElementById('coinsDisplay');
+                if (coinsEl) coinsEl.textContent = this.data.coins;
+                
+                // Update streak displays
+                const streakEl = document.getElementById('streakDisplay');
+                const currentStreakEl = document.getElementById('currentStreakDisplay');
+                const bestStreakEl = document.getElementById('bestStreakDisplay');
+                
+                if (streakEl) streakEl.textContent = this.data.currentStreak;
+                if (currentStreakEl) currentStreakEl.textContent = this.data.currentStreak;
+                if (bestStreakEl) bestStreakEl.textContent = this.data.bestStreak;
+                
+                // Update today's workouts
+                this.renderTodaysWorkouts();
+                
+                // Update calendar
+                this.renderCalendar();
+                
+                // Show/hide streak restore button
+                const restoreBtn = document.getElementById('restoreStreakBtn');
+                if (restoreBtn) {
+                    restoreBtn.style.display = this.data.streakLost && this.data.coins >= 25 ? 'block' : 'none';
+                }
+            }
+
+            renderTodaysWorkouts() {
+                const todaysWorkouts = this.getTodaysWorkouts();
+                const workoutsList = document.getElementById('todaysWorkouts');
+                
+                if (!workoutsList) return;
+                
+                if (todaysWorkouts.length === 0) {
+                    workoutsList.innerHTML = '<div class="no-workouts">Heute keine Workouts geplant 😌</div>';
+                    return;
+                }
+                
+                workoutsList.innerHTML = todaysWorkouts.map(workout => `
+                    <div class="workout-item ${workout.completed ? 'completed' : ''}">
+                        <div class="workout-info">
+                            <h3>${workout.name || workout.type}</h3>
+                            <p>${workout.exercises ? workout.exercises.map(e => `${e.name} (${e.sets}x${e.reps})`).join(', ') : ''}</p>
+                        </div>
+                        <button class="btn ${workout.completed ? 'btn-success' : 'btn-primary'}" 
+                                onclick="${workout.completed ? '' : `app.completeWorkout('${workout.id}')`}" 
+                                ${workout.completed ? 'disabled' : ''}>
+                            ${workout.completed ? '✓ Erledigt' : 'Abschließen'}
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            renderCalendar() {
+                const calendarGrid = document.querySelector('.calendar-grid');
+                if (!calendarGrid) return;
+                
+                const today = new Date();
+                const currentMonth = today.getMonth();
+                const currentYear = today.getFullYear();
+                
+                // Get first day of month and calculate start date
+                const firstDay = new Date(currentYear, currentMonth, 1);
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - firstDay.getDay());
+                
+                let html = '';
+                
+                for (let i = 0; i < 35; i++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + i);
+                    
+                    const isToday = currentDate.toDateString() === today.toDateString();
+                    const isCurrentMonth = currentDate.getMonth() === currentMonth;
+                    const dateString = currentDate.toDateString();
+                    
+                    // Check workout status for this date
+                    const workoutsForDate = this.getWorkoutsForDate(currentDate);
+                    const hasWorkout = workoutsForDate.length > 0;
+                    const isCompleted = hasWorkout && workoutsForDate.some(w => this.isWorkoutCompleted(w.id, dateString));
+                    const isRestDay = workoutsForDate.some(w => w.type === 'rest');
+                    
+                    // Determine if workout is missed (only for future dates after first app use)
+                    const firstUse = new Date(this.data.firstAppUse || this.data.lastVisit);
+                    const isMissed = hasWorkout && !isCompleted && !isRestDay && currentDate < today && currentDate >= firstUse;
+                    
+                    let classes = 'calendar-day';
+                    let content = '';
+                    
+                    if (isToday) classes += ' today';
+                    
+                    if (isRestDay) {
+                        classes += ' rest-day';
+                        content = `
+                            <div class="calendar-day-number">${currentDate.getDate()}</div>
+                            <div class="calendar-day-indicator">😴</div>
+                        `;
+                    } else if (isCompleted) {
+                        classes += ' completed';
+                        content = `
+                            <div class="calendar-day-number">${currentDate.getDate()}</div>
+                            <div class="calendar-day-indicator">🔥</div>
+                        `;
+                    } else if (isMissed) {
+                        classes += ' missed';
+                        content = `
+                            <div class="calendar-day-number">${currentDate.getDate()}</div>
+                            <div class="calendar-day-indicator">💀</div>
+                        `;
+                    } else if (hasWorkout) {
+                        classes += ' workout';
+                        const workoutName = workoutsForDate[0].name || workoutsForDate[0].type;
+                        content = `
+                            <div class="calendar-day-number">${currentDate.getDate()}</div>
+                            <div class="calendar-day-indicator">${workoutName.substring(0, 8)}</div>
+                        `;
+                    } else {
+                        content = `<div class="calendar-day-number">${currentDate.getDate()}</div>`;
+                    }
+                    
+                    html += `
+                        <div class="${classes}" style="${!isCurrentMonth ? 'opacity: 0.3;' : ''}">
+                            ${content}
+                        </div>
+                    `;
+                }
+                
+                calendarGrid.innerHTML = html;
+            }
+
+            getWorkoutsForDate(date) {
+                return this.data.workouts.filter(workout => {
+                    if (workout.scheduleType === 'weekly') {
+                        return date.getDay() === workout.weekday;
+                    } else if (workout.scheduleType === 'interval') {
+                        const startDate = new Date(workout.startDate);
+                        const daysDiff = Math.floor((date - startDate) / (1000 * 60 * 60 * 24));
+                        return daysDiff >= 0 && daysDiff % workout.intervalDays === 0;
+                    }
+                    return false;
+                });
+            }
+        }
+
+        // Initialize app
+        const app = new TrainifyApp();
+
+        // UI Functions
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageName + 'Page').classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Update calendar if calendar page is shown
+            if (pageName === 'calendar') {
+                app.renderCalendar();
+            }
+        }
+
+        function openCreateWorkoutModal() {
+            document.getElementById('createWorkoutModal').style.display = 'block';
+        }
+
+        function openDeleteWorkoutModal() {
+            const modal = document.getElementById('deleteWorkoutModal');
+            const workoutsList = document.getElementById('deleteWorkoutsList');
+            
+            if (app.data.workouts.length === 0) {
+                workoutsList.innerHTML = `
+                    <div class="empty-state">
+                        <div>Keine Workouts vorhanden</div>
+                    </div>
+                `;
+            } else {
+                workoutsList.innerHTML = app.data.workouts.map(workout => `
+                    <div class="workout-card" style="margin-bottom: 10px;">
+                        <div class="workout-header">
+                            <div class="workout-title">
+                                ${workout.type === 'rest' ? '😴 Pausentag' : `💪 ${workout.exercise}`}
+                            </div>
+                        </div>
+                        ${workout.type === 'workout' ? `
+                            <div class="workout-details">${workout.sets} Sets × ${workout.reps} Reps</div>
+                        ` : '<div class="workout-details">Pausentag</div>'}
+                        <div class="workout-details">
+                            ${workout.scheduleType === 'weekly' 
+                                ? `Jeden ${['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'][workout.weekday]}`
+                                : `Alle ${workout.intervalDays} Tage`
+                            }
+                        </div>
+                        <button class="btn btn-secondary" onclick="deleteWorkout('${workout.id}')" style="width: 100%; margin-top: 10px;">
+                            🗑️ Löschen
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            
+            // Reset form if it's the create modal
+            if (modalId === 'createWorkoutModal') {
+                document.getElementById('workoutName').value = '';
+                document.getElementById('workoutType').value = 'workout';
+                document.getElementById('scheduleType').value = 'weekly';
+                document.getElementById('weekday').value = '1';
+                document.getElementById('intervalDays').value = '2';
+                
+                // Reset exercises list to one exercise
+                const exercisesList = document.getElementById('exercisesList');
+                exercisesList.innerHTML = `
+                    <div class="exercise-item">
+                        <select class="form-select exercise-select">
+                            ${generateExerciseOptions()}
+                        </select>
+                        <div class="exercise-details">
+                            <input type="number" class="form-input" placeholder="Sets" min="1" value="3">
+                            <input type="number" class="form-input" placeholder="Reps" min="1" value="10">
+                            <button type="button" class="remove-exercise-btn" onclick="removeExercise(this)" style="display: none;">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                
+                toggleWorkoutFields();
+                toggleScheduleFields();
+            }
+        }
+
+        function toggleWorkoutFields() {
+            const workoutType = document.getElementById('workoutType').value;
+            const workoutFields = document.getElementById('workoutFields');
+            workoutFields.style.display = workoutType === 'workout' ? 'block' : 'none';
+        }
+
+        function toggleScheduleFields() {
+            const scheduleType = document.getElementById('scheduleType').value;
+            const weeklySchedule = document.getElementById('weeklySchedule');
+            const intervalSchedule = document.getElementById('intervalSchedule');
+            
+            if (scheduleType === 'weekly') {
+                weeklySchedule.style.display = 'block';
+                intervalSchedule.style.display = 'none';
+            } else {
+                weeklySchedule.style.display = 'none';
+                intervalSchedule.style.display = 'block';
+            }
+        }
+
+        function createWorkout() {
+            const workoutName = document.getElementById('workoutName').value.trim();
+            const workoutType = document.getElementById('workoutType').value;
+            const scheduleType = document.getElementById('scheduleType').value;
+            
+            // Validate workout name (only for workout type, not for rest days)
+            if (workoutType === 'workout' && !workoutName) {
+                alert('Bitte gib einen Workout-Namen ein!');
+                return;
+            }
+            
+            const workoutData = {
+                name: workoutName,
+                type: workoutType,
+                scheduleType: scheduleType,
+                exercises: []
+            };
+            
+            if (workoutType === 'workout') {
+                // Collect all exercises
+                const exerciseItems = document.querySelectorAll('.exercise-item');
+                
+                exerciseItems.forEach(item => {
+                    const exerciseSelect = item.querySelector('.exercise-select');
+                    const setsInput = item.querySelector('input[placeholder="Sets"]');
+                    const repsInput = item.querySelector('input[placeholder="Reps"]');
+                    
+                    if (exerciseSelect && setsInput && repsInput) {
+                        const exercise = {
+                            name: exerciseSelect.value,
+                            sets: parseInt(setsInput.value) || 3,
+                            reps: parseInt(repsInput.value) || 10
+                        };
+                        workoutData.exercises.push(exercise);
+                    }
+                });
+                
+                // For backward compatibility, set the first exercise as main exercise
+                if (workoutData.exercises.length > 0) {
+                    workoutData.exercise = workoutData.exercises[0].name;
+                    workoutData.sets = workoutData.exercises[0].sets;
+                    workoutData.reps = workoutData.exercises[0].reps;
+                }
+            }
+            
+            if (scheduleType === 'weekly') {
+                workoutData.weekday = parseInt(document.getElementById('weekday').value);
+            } else {
+                workoutData.intervalDays = parseInt(document.getElementById('intervalDays').value);
+                workoutData.startDate = new Date().toISOString();
+            }
+            
+            app.createWorkout(workoutData);
+            closeModal('createWorkoutModal');
+            
+            // Show success animation with appropriate message
+            if (workoutType === 'rest') {
+                showCelebration('😴', 'Pausentag festgelegt!');
+            } else {
+                showCelebration('💪', `Workout "${workoutName}" erstellt!`);
+            }
+        }
+
+        function deleteWorkout(workoutId) {
+            app.deleteWorkout(workoutId);
+            openDeleteWorkoutModal(); // Refresh the modal content
+        }
+
+        function restoreStreak() {
+            app.restoreStreak();
+        }
+
+        // Dark Mode Functions
+        function initializeDarkMode() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                darkModeToggle.checked = true;
+            }
+            
+            darkModeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+
+        // Profile Picture Functions
+        function initializeProfilePicture() {
+            const profileAvatar = document.getElementById('profileAvatar');
+            
+            // Load saved profile picture
+            const savedImage = localStorage.getItem('profileImage');
+            if (savedImage) {
+                profileAvatar.innerHTML = `<img src="${savedImage}" alt="Profile">`;
+            }
+            
+            // Handle settings profile image upload
+            const settingsProfileImageInput = document.getElementById('settingsProfileImageInput');
+            if (settingsProfileImageInput) {
+                settingsProfileImageInput.addEventListener('change', function(event) {
+                    handleProfileImageUpload(event.target.files[0]);
+                });
+            }
+        }
+        
+        function handleProfileImageUpload(file) {
+            if (file) {
+                // Check file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Datei zu groß! Maximale Größe: 5MB');
+                    return;
+                }
+                
+                // Check if image
+                if (!file.type.startsWith('image/')) {
+                    alert('Bitte wähle eine Bilddatei aus!');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Check minimum dimensions (100x100)
+                        if (img.width < 100 || img.height < 100) {
+                            alert('Bild zu klein! Mindestgröße: 100x100 Pixel');
+                            return;
+                        }
+                        
+                        // Save and display image
+                        localStorage.setItem('profileImage', e.target.result);
+                        const profileAvatar = document.getElementById('profileAvatar');
+                        profileAvatar.innerHTML = `<img src="${e.target.result}" alt="Profile">`;
+                        
+                        // Show success animation
+                        showCelebration('📷', 'Profilbild aktualisiert!');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Exercise Options Management
+        function generateExerciseOptions() {
+            const exercises = [
+                'Push-Ups',
+                'Sit-Ups', 
+                'Squats',
+                'Pull-Ups',
+                'Plank',
+                'Burpees',
+                'Lunges',
+                'Mountain Climbers',
+                'Deadlifts',
+                'Bench Press',
+                'Bicep Curls',
+                'Tricep Dips',
+                'Shoulder Press',
+                'Leg Press',
+                'Crunches',
+                'Russian Twists',
+                'Jumping Jacks',
+                'High Knees',
+                'Wall Sit',
+                'Dumbbell Rows'
+            ];
+            
+            return exercises.map(exercise => 
+                `<option value="${exercise}">${exercise}</option>`
+            ).join('');
+        }
+
+        // Exercise Management Functions
+        function addExercise() {
+            const exercisesList = document.getElementById('exercisesList');
+            const exerciseCount = exercisesList.children.length;
+            
+            const exerciseItem = document.createElement('div');
+            exerciseItem.className = 'exercise-item';
+            exerciseItem.innerHTML = `
+                <select class="form-select exercise-select">
+                    ${generateExerciseOptions()}
+                </select>
+                <div class="exercise-details">
+                    <input type="number" class="form-input" placeholder="Sets" min="1" value="3">
+                    <input type="number" class="form-input" placeholder="Reps" min="1" value="10">
+                    <button type="button" class="remove-exercise-btn" onclick="removeExercise(this)">🗑️</button>
+                </div>
+            `;
+            
+            exercisesList.appendChild(exerciseItem);
+            
+            // Show remove buttons for all exercises if more than one
+            updateRemoveButtons();
+        }
+
+        function removeExercise(button) {
+            const exerciseItem = button.closest('.exercise-item');
+            exerciseItem.remove();
+            updateRemoveButtons();
+        }
+
+        function updateRemoveButtons() {
+            const exerciseItems = document.querySelectorAll('.exercise-item');
+            exerciseItems.forEach((item, index) => {
+                const removeBtn = item.querySelector('.remove-exercise-btn');
+                if (exerciseItems.length > 1) {
+                    removeBtn.style.display = 'block';
+                } else {
+                    removeBtn.style.display = 'none';
+                }
+            });
+        }
+
+        // Workout Stats Functions
+        function showWorkoutStats() {
+            const modal = document.getElementById('workoutStatsModal');
+            const content = document.getElementById('workoutStatsContent');
+            
+            // Generate mock stats (in real app, this would come from stored data)
+            const stats = generateWorkoutStats();
+            
+            content.innerHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-card-info">
+                        <h4>${stat.exercise}</h4>
+                        <p>${stat.totalSets} Sets insgesamt • ${stat.lastWorkout}</p>
+                    </div>
+                    <div class="stat-card-number">${stat.totalReps}</div>
+                </div>
+            `).join('');
+            
+            modal.style.display = 'flex';
+        }
+
+        function generateWorkoutStats() {
+            const stats = [];
+            
+            // Get real stats from app data
+            for (const [exercise, data] of Object.entries(app.data.workoutStats || {})) {
+                if (data.totalReps > 0 || data.totalSets > 0) { // Only show if there are actual stats
+                    stats.push({
+                        exercise,
+                        totalReps: data.totalReps,
+                        totalSets: data.totalSets,
+                        lastWorkout: `${data.completions} mal abgeschlossen`
+                    });
+                }
+            }
+            
+            // If no stats yet, show empty message
+            if (stats.length === 0) {
+                return [{
+                    exercise: 'Noch keine Statistiken',
+                    totalReps: 0,
+                    totalSets: 0,
+                    lastWorkout: 'Schließe dein erstes Workout ab!'
+                }];
+            }
+            
+            return stats;
+        }
+
+        // Celebration Animation
+        function showCelebration(emoji, message) {
+            const overlay = document.createElement('div');
+            overlay.className = 'celebration-overlay';
+            overlay.innerHTML = `
+                <div class="celebration-content">
+                    <div class="celebration-emoji">${emoji}</div>
+                    <h2>${message}</h2>
+                </div>
+            `;
+            
+            document.body.appendChild(overlay);
+            
+            // Create fire effects
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    createFireEffect();
+                }, i * 200);
+            }
+            
+            setTimeout(() => {
+                overlay.remove();
+            }, 2000);
+        }
+
+        function createFireEffect() {
+            const fire = document.createElement('div');
+            fire.className = 'fire-effect';
+            fire.textContent = '🔥';
+            fire.style.left = Math.random() * window.innerWidth + 'px';
+            fire.style.top = Math.random() * window.innerHeight + 'px';
+            
+            document.body.appendChild(fire);
+            
+            setTimeout(() => {
+                fire.remove();
+            }, 1000);
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Settings Functions
+        function initializeSettings() {
+            // Load saved username
+            const savedUsername = localStorage.getItem('username') || 'Trainify User';
+            document.getElementById('profileName').textContent = savedUsername;
+            document.getElementById('usernameInput').value = savedUsername;
+            
+            // Initialize gradient toggle
+            const gradientToggle = document.getElementById('gradientToggle');
+            const savedGradient = localStorage.getItem('headerGradient') !== 'false';
+            gradientToggle.checked = savedGradient;
+            
+            gradientToggle.addEventListener('change', function() {
+                localStorage.setItem('headerGradient', this.checked);
+                updateHeaderStyle();
+                
+                const gradientCustomSetting = document.getElementById('gradientCustomSetting');
+                if (this.checked) {
+                    gradientCustomSetting.style.display = 'flex';
+                } else {
+                    gradientCustomSetting.style.display = 'none';
+                }
+            });
+            
+            // Load saved gradient colors
+            const savedFrom = localStorage.getItem('gradientFrom') || '#667eea';
+            const savedTo = localStorage.getItem('gradientTo') || '#764ba2';
+            
+            document.getElementById('gradientFromInput').value = savedFrom;
+            document.getElementById('gradientToInput').value = savedTo;
+            
+            if (savedGradient) {
+                document.getElementById('gradientCustomSetting').style.display = 'flex';
+            }
+            
+            updateHeaderStyle();
+        }
+        
+        function updateUsername() {
+            const usernameInput = document.getElementById('usernameInput');
+            const profileName = document.getElementById('profileName');
+            
+            if (!usernameInput) return;
+            
+            const username = usernameInput.value.trim();
+            if (username) {
+                localStorage.setItem('username', username);
+                if (profileName) profileName.textContent = username;
+                showCelebration('👤', 'Benutzername aktualisiert!');
+                checkAchievements(); // Check username achievement
+            } else {
+                alert('Bitte gib einen gültigen Namen ein!');
+            }
+        }
+        
+        function updateHeaderStyle() {
+            const header = document.querySelector('.header');
+            const gradientEnabled = document.getElementById('gradientToggle').checked;
+            
+            localStorage.setItem('headerGradient', gradientEnabled);
+            
+            if (gradientEnabled) {
+                const customFrom = localStorage.getItem('gradientFrom') || '#667eea';
+                const customTo = localStorage.getItem('gradientTo') || '#764ba2';
+                header.style.background = `linear-gradient(135deg, ${customFrom}, ${customTo})`;
+            } else {
+                header.style.background = 'var(--surface)';
+                header.style.color = 'var(--text-primary)';
+            }
+        }
+        
+        function updateCustomGradient() {
+            const fromColor = document.getElementById('gradientFromInput').value.trim();
+            const toColor = document.getElementById('gradientToInput').value.trim();
+            
+            if (fromColor && toColor) {
+                localStorage.setItem('gradientFrom', fromColor);
+                localStorage.setItem('gradientTo', toColor);
+                updateHeaderStyle();
+                showCelebration('🌈', 'Gradient aktualisiert!');
+            } else {
+                alert('Bitte gib beide Farben ein!');
+            }
+        }
+        
+        function redeemCode() {
+            const code = document.getElementById('redeemCodeInput').value.trim();
+            const redeemedCodes = JSON.parse(localStorage.getItem('redeemedCodes') || '[]');
+            
+            if (code === 'KingRali') {
+                if (redeemedCodes.includes(code)) {
+                    showCelebration('❌', 'Code bereits eingelöst!');
+                    return;
+                }
+                
+                app.data.coins += 50;
+                redeemedCodes.push(code);
+                localStorage.setItem('redeemedCodes', JSON.stringify(redeemedCodes));
+                app.saveData();
+                app.updateUI();
+                
+                document.getElementById('redeemCodeInput').value = '';
+                showCelebration('💎', '50 Coins erhalten! Code: KingRali');
+            } else {
+                showCelebration('❌', 'Ungültiger Code!');
+            }
+        }
+        
+        function confirmDeleteAllData() {
+            if (confirm('⚠️ WARNUNG: Alle deine Workouts, Statistiken und Einstellungen werden gelöscht!\n\nDies kann NICHT rückgängig gemacht werden!\n\nBist du sicher?')) {
+                if (confirm('Letzte Chance! Wirklich ALLES löschen?')) {
+                    // Clear all localStorage data
+                    const keysToKeep = ['theme']; // Keep dark mode setting
+                    const allKeys = Object.keys(localStorage);
+                    
+                    allKeys.forEach(key => {
+                        if (!keysToKeep.includes(key)) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+                    
+                    // Reset app data
+                    app.data = {
+                        workouts: [],
+                        coins: 0,
+                        currentStreak: 0,
+                        bestStreak: 0,
+                        lastVisit: new Date().toDateString(),
+                        completedDays: [],
+                        streakLost: false,
+                        dailyCoinsEarned: {},
+                        workoutStats: {},
+                        achievements: {}
+                    };
+                    
+                    app.saveData();
+                    app.updateUI();
+                    
+                    // Reset UI elements
+                    document.getElementById('profileName').textContent = 'Trainify User';
+                    document.getElementById('usernameInput').value = 'Trainify User';
+                    document.getElementById('profileAvatar').innerHTML = '👤';
+                    
+                    showCelebration('🗑️', 'Alle Daten gelöscht!');
+                }
+            }
+        }
+        
+        // Achievements System
+        function getAchievementDefinitions() {
+            const exercises = getExerciseOptions();
+            const achievements = {
+                general: [
+                    { id: 'profile_pic', name: 'Profilbild hochladen', description: 'Lade dein erstes Profilbild hoch', icon: '📷', coins: 1 },
+                    { id: 'username_set', name: 'Benutzername festlegen', description: 'Lege deinen Benutzernamen fest', icon: '👤', coins: 1 },
+                    { id: 'first_workout', name: 'Erstes Workout', description: 'Erstelle dein erstes Workout', icon: '🏋️', coins: 1 },
+                    { id: 'first_completion', name: 'Erste Vollendung', description: 'Schließe dein erstes Workout ab', icon: '✅', coins: 1 },
+                    { id: 'streak_3', name: '3-Tage Streak', description: 'Erreiche eine 3-Tage Streak', icon: '🔥', coins: 2 },
+                    { id: 'streak_7', name: '7-Tage Streak', description: 'Erreiche eine 7-Tage Streak', icon: '🏆', coins: 5 },
+                    { id: 'coins_100', name: 'Coin Sammler', description: 'Sammle 100 Coins', icon: '💰', coins: 10 }
+                ],
+                exercise: []
+            };
+            
+            // ranks
+            exercises.forEach(exercise => {
+                const ranks = [
+                    { threshold: 1, name: 'Anfänger', icon: '🥉', coins: 1 },
+                    { threshold: 100, name: 'Holz', icon: '🪵', coins: 1 },
+                    { threshold: 250, name: 'Stein', icon: '🪨', coins: 1 },
+                    { threshold: 500, name: 'Bronze', icon: '🥉', coins: 2 },
+                    { threshold: 1000, name: 'Silber', icon: '🥈', coins: 3 },
+                    { threshold: 2500, name: 'Gold', icon: '🥇', coins: 5 },
+                    { threshold: 5000, name: 'Platin', icon: '💿', coins: 10 },
+                    { threshold: 10000, name: 'Diamant', icon: '💎', coins: 15 },
+                    { threshold: 25000, name: 'Master', icon: '🔱', coins: 25 },
+                    { threshold: 50000, name: 'Legende', icon: '🎆', coins: 50 }
+                ];
+                
+                ranks.forEach((rank, index) => {
+                    achievements.exercise.push({
+                        id: `${exercise.toLowerCase().replace(/\s+/g, '_')}_rank_${index}`,
+                        name: `${exercise} ${rank.name}`,
+                        description: `Erreiche ${rank.threshold} Sets bei ${exercise}`,
+                        icon: rank.icon,
+                        coins: rank.coins,
+                        exercise: exercise,
+                        threshold: rank.threshold
+                    });
+                });
+            });
+            
+            return achievements;
+        }
+        
+        function checkAchievements() {
+            const achievements = getAchievementDefinitions();
+            const userAchievements = app.data.achievements || {};
+            let newAchievements = [];
+            
+            // Check general achievements
+            achievements.general.forEach(achievement => {
+                if (!userAchievements[achievement.id]) {
+                    let unlocked = false;
+                    
+                    switch(achievement.id) {
+                        case 'profile_pic':
+                            unlocked = localStorage.getItem('profileImage') !== null;
+                            break;
+                        case 'username_set':
+                            unlocked = localStorage.getItem('username') !== null && localStorage.getItem('username') !== 'Trainify User';
+                            break;
+                        case 'first_workout':
+                            unlocked = app.data.workouts.length > 0;
+                            break;
+                        case 'first_completion':
+                            unlocked = app.data.completedDays.length > 0;
+                            break;
+                        case 'streak_3':
+                            unlocked = app.data.currentStreak >= 3;
+                            break;
+                        case 'streak_7':
+                            unlocked = app.data.currentStreak >= 7;
+                            break;
+                        case 'coins_100':
+                            unlocked = app.data.coins >= 100;
+                            break;
+                    }
+                    
+                    if (unlocked) {
+                        userAchievements[achievement.id] = true;
+                        newAchievements.push(achievement);
+                        app.data.coins += achievement.coins;
+                    }
+                }
+            });
+            
+            // Check exercise achievements
+            achievements.exercise.forEach(achievement => {
+                if (!userAchievements[achievement.id]) {
+                    const exerciseStats = app.data.workoutStats[achievement.exercise] || { sets: 0 };
+                    if (exerciseStats.sets >= achievement.threshold) {
+                        userAchievements[achievement.id] = true;
+                        newAchievements.push(achievement);
+                        app.data.coins += achievement.coins;
+                    }
+                }
+            });
+            
+            app.data.achievements = userAchievements;
+            
+            // Show new achievements
+            if (newAchievements.length > 0) {
+                newAchievements.forEach(achievement => {
+                    setTimeout(() => {
+                        showCelebration(achievement.icon, `Erfolg freigeschaltet: ${achievement.name}! (+${achievement.coins} Coin${achievement.coins > 1 ? 's' : ''})`);
+                    }, 500);
+                });
+                app.saveData();
+                app.updateUI();
+            }
+        }
+        
+        function showAchievements() {
+            document.getElementById('achievementsModal').style.display = 'block';
+            renderAchievements();
+        }
+        
+        function renderAchievements() {
+            const achievements = getAchievementDefinitions();
+            const userAchievements = app.data.achievements || {};
+            const category = document.getElementById('achievementCategorySelect').value;
+            const searchTerm = document.getElementById('achievementSearchInput').value.toLowerCase();
+            
+            let allAchievements = [];
+            if (category === 'all') {
+                allAchievements = [...achievements.general, ...achievements.exercise];
+            } else {
+                allAchievements = achievements[category] || [];
+            }
+            
+            // Filter by search term
+            if (searchTerm) {
+                allAchievements = allAchievements.filter(achievement => 
+                    achievement.name.toLowerCase().includes(searchTerm) ||
+                    achievement.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            const content = document.getElementById('achievementsContent');
+            content.innerHTML = `
+                <div class="achievement-grid">
+                    ${allAchievements.map(achievement => {
+                        const isUnlocked = userAchievements[achievement.id] || false;
+                        const progress = getAchievementProgress(achievement);
+                        
+                        return `
+                            <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'}">
+                                <div class="achievement-header">
+                                    <div class="achievement-icon">${achievement.icon}</div>
+                                    <div class="achievement-info">
+                                        <h3>${achievement.name}</h3>
+                                        <p>${achievement.description}</p>
+                                    </div>
+                                </div>
+                                ${!isUnlocked && progress.current < progress.target ? `
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${(progress.current / progress.target) * 100}%"></div>
+                                        </div>
+                                        <div class="progress-text">${progress.current} / ${progress.target}</div>
+                                    </div>
+                                ` : ''}
+                                <div class="rank-badge">+${achievement.coins} 💰</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function getAchievementProgress(achievement) {
+            switch(achievement.id) {
+                case 'streak_3':
+                    return { current: app.data.currentStreak, target: 3 };
+                case 'streak_7':
+                    return { current: app.data.currentStreak, target: 7 };
+                case 'coins_100':
+                    return { current: app.data.coins, target: 100 };
+                default:
+                    if (achievement.exercise) {
+                        const exerciseStats = app.data.workoutStats[achievement.exercise] || { sets: 0 };
+                        return { current: exerciseStats.sets, target: achievement.threshold };
+                    }
+                    return { current: 0, target: 1 };
+            }
+        }
+        
+        function filterAchievements() {
+            renderAchievements();
+        }
+
+        // Show page function
+        function showPage(pageName) {
+            const pages = document.querySelectorAll('.page');
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            pages.forEach(page => page.classList.remove('active'));
+            navItems.forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(pageName + 'Page').classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reinitialize app when DOM is ready
+            app = new TrainifyApp();
+            
+            // Set current date as today in calendar
+            const today = new Date();
+            console.log('Trainify App initialized on:', today.toDateString());
+            
+            // Initialize dark mode
+            initializeDarkMode();
+            
+            // Initialize profile picture upload
+            initializeProfilePicture();
+            
+            // Initialize settings
+            initializeSettings();
+            
+            // Initialize exercise dropdown
+            const initialExerciseSelect = document.getElementById('initialExerciseSelect');
+            if (initialExerciseSelect) {
+                initialExerciseSelect.innerHTML = generateExerciseOptions();
+            }
+        });
+
+        // Navigation click handler
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.nav-item')) {
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => item.classList.remove('active'));
+                e.target.closest('.nav-item').classList.add('active');
+            }
+        });
+    </script>
+</html>
