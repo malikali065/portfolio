@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Quest - Das ultimative Ratespiel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+
+        /* Homepage Styles */
+        .homepage {
+            text-align: center;
+        }
+
+        .main-title {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+            animation: fadeInUp 1s ease 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 0.8;
+                transform: translateY(0);
+            }
+        }
+
+        .game-buttons {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .game-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 1.5rem 3rem;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 200px;
+            animation: slideInLeft 0.8s ease both;
+        }
+
+        .game-btn:nth-child(2) {
+            animation: slideInRight 0.8s ease both;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .game-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .game-btn:hover::before {
+            left: 100%;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .profile-section {
+            position: absolute;
+            bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-pic:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .stats {
+            font-size: 1rem;
+            opacity: 0.8;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 200px;
+        }
+
+        .stats div {
+            margin: 0.3rem 0;
+        }
+
+        /* File Upload Styles */
+        .file-input {
+            display: none;
+        }
+
+        .upload-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .profile-pic:hover .upload-overlay {
+            opacity: 1;
+        }
+
+        /* Game Screen Styles */
+        .game-screen {
+            display: none;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .streak-display {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Lives Display */
+        .lives-display {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .heart {
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.5));
+        }
+
+        .heart.lost {
+            opacity: 0.3;
+            transform: scale(0.8);
+            filter: grayscale(100%);
+        }
+
+        .heart.gained {
+            animation: heartPulse 0.6s ease;
+        }
+
+        @keyframes heartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .emoji-display {
+            font-size: 5rem;
+            margin: 3rem 0;
+            animation: bounceIn 0.8s ease;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .input-section {
+            margin: 2rem 0;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .answer-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #2d3436;
+        }
+
+        .hint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(253, 203, 110, 0.3);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 206, 201, 0.3);
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        /* Result Display */
+        .result {
+            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result.correct {
+            background: rgba(0, 184, 148, 0.2);
+            color: #00b894;
+            border: 1px solid rgba(0, 184, 148, 0.3);
+        }
+
+        .result.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        /* Game Over Screen */
+        .game-over {
+            display: none;
+            text-align: center;
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid rgba(231, 76, 60, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            animation: slideIn 0.5s ease;
+        }
+
+        .game-over.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+            
+            .game-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .emoji-display {
+                font-size: 4rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+
+            .profile-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .lives-display {
+                top: 6rem;
+                right: 1rem;
+            }
+
+            .streak-display {
+                top: 6rem;
+                left: 1rem;
+                transform: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation" id="bgAnimation"></div>
+    
+    <div class="container">
+        <!-- Homepage -->
+        <div class="homepage" id="homepage">
+            <h1 class="main-title">EMOJI QUEST</h1>
+            <p class="subtitle">Errate Länder und Animes anhand von Emojis!</p>
+            
+            <div class="game-buttons">
+                <button class="game-btn" onclick="startGame('countries')">
+                    🌍 LÄNDER RATEN
+                </button>
+                <button class="game-btn" onclick="startGame('anime')">
+                    🎌 ANIME RATEN
+                </button>
+            </div>
+            
+            <div class="profile-section">
+                <div class="profile-container">
+                    <div class="profile-pic" onclick="uploadProfile()">
+                        <span id="profileIcon">📷</span>
+                        <img id="profileImage" style="display: none;" />
+                        <div class="upload-overlay">
+                            📸 Upload
+                        </div>
+                        <input type="file" id="profileUpload" class="file-input" accept="image/*" onchange="handleProfileUpload(event)">
+                    </div>
+                    <div class="stats">
+                        <div>🏆 Best Streak: <span id="bestStreak">0</span></div>
+                        <div>🎮 Gespielt: <span id="gamesPlayed">0</span></div>
+                        <div>💯 Erfolgsrate: <span id="successRate">0%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <button class="back-btn" onclick="goHome()">← Zurück</button>
+            
+            <div class="streak-display">
+                🔥 Streak: <span id="currentStreak">0</span>
+            </div>
+            
+            <div class="lives-display">
+                <span class="heart" id="heart1">❤️</span>
+                <span class="heart" id="heart2">❤️</span>
+                <span class="heart" id="heart3">❤️</span>
+            </div>
+            
+            <div class="emoji-display" id="emojiDisplay">
+                🎮
+            </div>
+            
+            <div class="input-section">
+                <input 
+                    type="text" 
+                    class="answer-input" 
+                    id="answerInput" 
+                    placeholder="Deine Antwort..."
+                    onkeypress="handleKeyPress(event)"
+                >
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn hint-btn" onclick="getHint()">
+                    💡 Tipp (-50% Punkte)
+                </button>
+                <button class="action-btn submit-btn" onclick="submitAnswer()">
+                    ✅ Antwort
+                </button>
+            </div>
+            
+            <div class="result" id="result"></div>
+            
+            <div class="game-over" id="gameOver">
+                <h2>💀 GAME OVER</h2>
+                <p>Du hast alle Leben verloren!</p>
+                <p>Finale Streak: <span id="finalStreak">0</span></p>
+                <button class="action-btn submit-btn" onclick="restartGame()" style="margin-top: 1rem;">
+                    🔄 Nochmal spielen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game Data
+        const gameData = {
+            countries: [
+                { emojis: '🍺🎡🎶', answer: 'deutschland', hint: 'Technofest und Bierkultur' },
+                { emojis: '🍣🎌⛩️', answer: 'japan', hint: 'Sushi und Tempel' },
+                { emojis: '🗽🍔🎬🛣️', answer: 'usa', hint: 'Hollywood und Fastfood' },
+                { emojis: '🥖🎨💋', answer: 'frankreich', hint: 'Baguette, Kunst, Liebe' },
+                { emojis: '🍕🎭👢', answer: 'italien', hint: 'Pizza, Oper, Stiefel' },
+                { emojis: '☕☂️📚🕰️', answer: 'england', hint: 'Tea Time und Regen' },
+                { emojis: '🐼🥡🎎🎋', answer: 'china', hint: 'Pandas und Teezeremonie' },
+                { emojis: '🐻❄️🥶🎩🎼', answer: 'russland', hint: 'Kälte, Bären und Balalaika' },
+                { emojis: '⚽🌴🥥🎉', answer: 'brasilien', hint: 'Fußball und Karneval' },
+                { emojis: '🦘🔥🌊', answer: 'australien', hint: 'Kängurus und Strände' },
+                { emojis: '🎧💃🥢🖥️', answer: 'südkorea', hint: 'K-Pop und Tech' },
+                { emojis: '🐘🎉🌶️🕌🕉️', answer: 'indien', hint: 'Gewürze, Farben und Kultur' },
+                { emojis: '💃🍷🌞🏖️', answer: 'spanien', hint: 'Strand, Tanz und Wein' },
+                { emojis: '🌷🚲🧀', answer: 'niederlande', hint: 'Tulpen, Käse und Fahrrad' },
+                { emojis: '🏔️⛷️🧀⏰', answer: 'schweiz', hint: 'Alpen und Uhrwerke' },
+                { emojis: '🌿🏜️🕌📜', answer: 'palästina', hint: 'Heiliges Land mit Geschichte' },
+                { emojis: '⛰️🧿🎶🔥', answer: 'kurdistan', hint: 'Berge, Kultur und Musik' },
+                { emojis: '🌊🐊⛏️🏺', answer: 'ägypten', hint: 'Nil und Pyramiden' },
+                { emojis: '🎻☕🍰🏰', answer: 'österreich', hint: 'Mozart und Kaffeehaus' },
+                { emojis: '🍫💶🏦', answer: 'luxemburg', hint: 'Klein aber reich' },
+                { emojis: '🌵🤠🎸', answer: 'mexiko', hint: 'Kakteen und Mariachi' },
+                { emojis: '🕌🏜️🐪', answer: 'saudiarabien', hint: 'Wüste und Öl' },
+                { emojis: '🍟⚽🎉', answer: 'belgien', hint: 'Pommes und Fußball' },
+                { emojis: '🏝️🌺🍍', answer: 'hawaii', hint: 'Inseln, Blumen und Ananas' },
+                { emojis: '🗻🦌🍶', answer: 'kanada', hint: 'Wälder, Hirsche und Ahornsirup' },
+                { emojis: '🐫🏜️🕌', answer: 'marokko', hint: 'Wüste und Basare' },
+                { emojis: '🏰🍺🍖', answer: 'tschechien', hint: 'Bier und Burgen' },
+                { emojis: '🏰🍷🎭', answer: 'ungarn', hint: 'Burgen und Wein' },
+                { emojis: '🌲🏞️🐻', answer: 'schweden', hint: 'Wälder und Elche' },
+                { emojis: '🏞️🍷🐑', answer: 'neuseeland', hint: 'Natur und Schafe' },
+                { emojis: '🌋🌴🦜', answer: 'indonesien', hint: 'Vulkane und Regenwald' },
+                { emojis: '🐪🏜️⛺', answer: 'jemen', hint: 'Wüste und Zelte' },
+                { emojis: '🌾🎻🎨', answer: 'ukraine', hint: 'Weizenfelder und Kultur' },
+                { emojis: '🍫🍺🎡', answer: 'irland', hint: 'Bier und grüne Wiesen' },
+                { emojis: '🐫🏜️🌵', answer: 'tunesien', hint: 'Wüste und Kamele' },
+                { emojis: '🍇🏛️🎭', answer: 'griechenland', hint: 'Wein und Antike' },
+                { emojis: '🏞️🦌🍫', answer: 'norwegen', hint: 'Fjorde und Schokolade' },
+                { emojis: '🍞🥖🍷', answer: 'frankreich', hint: 'Brot und Wein' },
+                { emojis: '🌴🌊🎭', answer: 'jamaika', hint: 'Strand und Reggae' },
+                { emojis: '🏜️🌵🐍', answer: 'iran', hint: 'Wüste und Kultur' },
+                { emojis: '🏔️🐏🎶', answer: 'georgien', hint: 'Berge und Wein' },
+                { emojis: '🌴🏝️🍹', answer: 'dominikanische republik', hint: 'Insel und Rum' },
+                { emojis: '🕌📜🛕', answer: 'pakistan', hint: 'Moscheen und Geschichte' },
+                { emojis: '🏞️🌾🐐', answer: 'bulgarien', hint: 'Berge und Landwirtschaft' },
+                { emojis: '🏰🎭🍺', answer: 'polen', hint: 'Burgen und Bier' },
+                { emojis: '🌲🌊🐻', answer: 'finnland', hint: 'Seen und Bären' },
+                { emojis: '🐑🧀🍷', answer: 'schottland', hint: 'Schafe und Whisky' },
+                { emojis: '🏞️🌵🎶', answer: 'argentinien', hint: 'Tango und Pampas' },
+                { emojis: '🌊🌴🐠', answer: 'malta', hint: 'Insel und Meer' },
+                { emojis: '🍇⛪🎭', answer: 'portugal', hint: 'Wein und Fado' },
+                { emojis: '🏔️❄️🐺', answer: 'island', hint: 'Gletscher und Wölfe' },
+                { emojis: '🌾🕍🍷', answer: 'serbien', hint: 'Agrarland und Weinkultur' },
+                { emojis: '🐪🏜️📿', answer: 'algerien', hint: 'Wüste und Kultur' },
+                { emojis: '🏝️🌞🍍', answer: 'fidschi', hint: 'Inselparadies' },
+                { emojis: '🎩🚂⛏️', answer: 'uk', hint: 'Dampflokomotive und Hüte' },
+                { emojis: '🏞️🐅🎍', answer: 'bangladesch', hint: 'Flussdeltas und Tiger' },
+                { emojis: '🏜️🌴🏰', answer: 'katar', hint: 'Wüste und Wohlstand' },
+                { emojis: '🌾🍇🎶', answer: 'moldawien', hint: 'Wein und Landwirtschaft' },
+                { emojis: '🏝️🐢🌴', answer: 'seychellen', hint: 'Inseln mit Schildkröten' },
+                { emojis: '🐪🏜️🏰', answer: 'libyen', hint: 'Wüste und Geschichte' },
+                { emojis: '🦜🌳🍍', answer: 'kolumbien', hint: 'Regenwald und Kaffee' },
+                { emojis: '🏰🎨🍺', answer: 'slowakei', hint: 'Burgen und Bier' },
+                { emojis: '🏞️🐮🎵', answer: 'nepal', hint: 'Himalaya und Kultur' },
+                { emojis: '🌾🐎🎭', answer: 'kasachstan', hint: 'Steppe und Nomaden' },
+                { emojis: '🏝️🌊🍹', answer: 'barbados', hint: 'Insel und Rum' },
+                { emojis: '🍚🎎🎋', answer: 'taiwan', hint: 'Reis und Tradition' },
+                { emojis: '🐪🏜️🌞', answer: 'oman', hint: 'Wüste und Sonne' },
+                { emojis: '🌿🐘🎉', answer: 'sri lanka', hint: 'Natur und Kultur' },
+                { emojis: '🏔️🦌🎿', answer: 'liechtenstein', hint: 'Alpen und Wintersport' },
+                { emojis: '🍌🌴🐒', answer: 'ecuador', hint: 'Dschungel und Bananen' },
+                { emojis: '🌞🏝️🎵', answer: 'bahamas', hint: 'Strand und Musik' },
+                { emojis: '🏰🍺🍀', answer: 'nordirland', hint: 'Burgen und Grün' },
+                { emojis: '🌵🌞🐪', answer: 'marokko', hint: 'Wüste und Sonne' },
+                { emojis: '🐴🌾🎶', answer: 'mongolei', hint: 'Nomaden und Pferde' },
+                { emojis: '🏝️🌺🌊', answer: 'palau', hint: 'Insel und Natur' },
+                { emojis: '🐎🎯🏞️', answer: 'azerbaijan', hint: 'Pferde und Landschaft' },
+                { emojis: '🏜️🌞🕌', answer: 'jemen', hint: 'Wüste und Geschichte' },
+                { emojis: '🏞️🏰🎨', answer: 'slowenien', hint: 'Natur und Kultur' },
+                { emojis: '🍇🎭🏞️', answer: 'georgien', hint: 'Wein und Berge' },
+                { emojis: '🏝️🌊🐬', answer: 'malediven', hint: 'Inseln und Meer' },
+                { emojis: '🏞️🕍🐏', answer: 'armenien', hint: 'Berge und Geschichte' },
+                { emojis: '🏝️🐦🍹', answer: 'barbados', hint: 'Insel und Musik' },
+                { emojis: '🌾🎶🦌', answer: 'belarus', hint: 'Wälder und Tradition' },
+                { emojis: '🍚🌿🎉', answer: 'laos', hint: 'Natur und Feste' },
+                { emojis: '🌞🏜️🐪', answer: 'sudan', hint: 'Wüste und Kultur' },
+                { emojis: '🐎🏞️🏕️', answer: 'kirgisistan', hint: 'Berge und Nomaden' },
+                { emojis: '🏝️🌺🐢', answer: 'seychellen', hint: 'Inselparadies mit Schildkröten' },
+                { emojis: '🐪🏜️🏰', answer: 'libyen', hint: 'Wüstenland mit antiken Ruinen' },
+                { emojis: '🦜🌳☕', answer: 'kolumbien', hint: 'Kaffee und Regenwald' },
+                { emojis: '🏰🍺🎻', answer: 'slowakei', hint: 'Burgen und Volksmusik' },
+                { emojis: '🏔️🐐🕉️', answer: 'nepal', hint: 'Himalaya und spirituelle Kultur' },
+                { emojis: '🌾🐎🎯', answer: 'kasachstan', hint: 'Steppe und Nomadentradition' },
+                { emojis: '🏝️🌞🍹', answer: 'barbados', hint: 'Karibikinsel und Rum' },
+                { emojis: '🍚🎎🎋', answer: 'taiwan', hint: 'Reisfelder und Tradition' },
+                { emojis: '🐪🏜️🌞', answer: 'oman', hint: 'Wüste und Oasen' },
+                { emojis: '🌿🐘🎉', answer: 'sri lanka', hint: 'Tee und Kultur' },
+                { emojis: '🏔️🦌⛷️', answer: 'liechtenstein', hint: 'Wintersport und Alpen' },
+                { emojis: '🍌🌴🐒', answer: 'ecuador', hint: 'Dschungel und Bananen' },
+                { emojis: '🌞🏝️🎵', answer: 'bahamas', hint: 'Strände und Musik' },
+                { emojis: '🏰🍺🍀', answer: 'nordirland', hint: 'Grüne Insel mit Biertradition' },
+                { emojis: '🐴🌾🎶', answer: 'mongolei', hint: 'Nomaden und Pferde' },
+                { emojis: '🏝️🌊🐬', answer: 'malediven', hint: 'Trauminseln im Indischen Ozean' },
+                { emojis: '🏞️🕍🐏', answer: 'armenien', hint: 'Alte Kirchen und Gebirge' },
+                { emojis: '🏞️🌲🛶', answer: 'kanada', hint: 'Wälder und Seen' },
+                { emojis: '🐪🌞🕌', answer: 'sudan', hint: 'Wüste und Nil' },
+                { emojis: '🌅🏝️🐦', answer: 'fidschi', hint: 'Tropische Inseln' },
+                { emojis: '🏔️🛖🎯', answer: 'kirgisistan', hint: 'Hochgebirge und Nomaden' },
+                { emojis: '🏞️🌾🐦', answer: 'belarus', hint: 'Weite Landschaften und Wälder' },
+                { emojis: '🏰🍷🎭', answer: 'portugal', hint: 'Wein und Fado' },
+                { emojis: '🏞️🏰🎭', answer: 'kroatien', hint: 'Strände und mittelalterliche Städte' },
+                { emojis: '🕌🌾🕌', answer: 'irak', hint: 'Historisches Zweistromland' },
+                { emojis: '🍣⛩️🎏', answer: 'südkorea', hint: 'Sushi, K-Pop und Tradition' },
+                { emojis: '🏝️🐠🌺', answer: 'tonga', hint: 'Südseeinseln' },
+                { emojis: '🍫🐒🏞️', answer: 'ghana', hint: 'Regenwald und Kakao' },
+                { emojis: '🏞️🌲🎣', answer: 'estland', hint: 'Wälder und Seen' },
+                { emojis: '🏰🍇🎶', answer: 'zimbabwe', hint: 'Historische Ruinen und Natur' },
+                { emojis: '🏞️🏜️🐪', answer: 'mauretanien', hint: 'Wüstenlandschaft' },
+                { emojis: '🐘🌿🌾', answer: 'botswana', hint: 'Safari und Natur' },
+                { emojis: '🏝️🌞🌴', answer: 'seychellen', hint: 'Tropisches Inselparadies' },
+                { emojis: '🏰🎭🍷', answer: 'slowenien', hint: 'Kultur und Wein' },
+                { emojis: '🌋🌴🌊', answer: 'vanuatu', hint: 'Inseln mit Vulkanen' },
+                { emojis: '🏜️🐪🌞', answer: 'chad', hint: 'Sahelzone und Wüste' },
+                { emojis: '🏞️🐒🌳', answer: 'uganda', hint: 'Regenwald und Tiere' },
+                { emojis: '🏰🎭🍺', answer: 'belarus', hint: 'Burgen und Kultur' },
+                { emojis: '🏝️🐠🌞', answer: 'komoren', hint: 'Inseln im Indischen Ozean' },
+                { emojis: '🏞️🌲🐻', answer: 'lettland', hint: 'Wälder und Natur' },
+                { emojis: '🏞️🐘🌿', answer: 'mozambique', hint: 'Strände und Natur' },
+                { emojis: '🌾🎵🎨', answer: 'madagaskar', hint: 'Tierwelt und Kultur' },
+                { emojis: '🏜️🐪🎶', answer: 'niger', hint: 'Wüste und Musik' },
+                { emojis: '🏝️🌊🐦', answer: 'marshallinseln', hint: 'Atolle und Ozean' },
+                { emojis: '🏔️🛕🌲', answer: 'bhutan', hint: 'Berge und Klöster' },
+                { emojis: '🏞️🌲🐎', answer: 'armenia', hint: 'Gebirge und Geschichte' },
+                { emojis: '🏝️🌞🎣', answer: 'solomoninseln', hint: 'Inselwelt im Pazifik' },
+                { emojis: '🏜️🐪🌞', answer: 'eritrea', hint: 'Wüste und Meer' },
+                { emojis: '🏞️🏕️🎣', answer: 'suriname', hint: 'Regenwald und Flüsse' },
+                { emojis: '🌾🐐🎶', answer: 'albanien', hint: 'Berge und Musik' },
+                { emojis: '🏝️🐠🌊', answer: 'seychellen', hint: 'Inselparadies' },
+                { emojis: '🏰🎭🍷', answer: 'moldawien', hint: 'Wein und Tradition' },
+                { emojis: '🌞🏜️🐪', answer: 'libyen', hint: 'Wüste und Geschichte' },
+                { emojis: '🌴🌺🍍', answer: 'hawaii', hint: 'Tropisches Inselparadies' },
+                { emojis: '🏜️🐪⛺', answer: 'algerien', hint: 'Wüstenland mit Nomaden' },
+                { emojis: '🏰🍷🎻', answer: 'ungarn', hint: 'Burgen und Musik' },
+                { emojis: '🏞️🐻🌲', answer: 'bosnien', hint: 'Wälder und Bären' },
+                { emojis: '🍫🌴🐒', answer: 'ivory coast', hint: 'Kakao und Regenwald' },
+                { emojis: '🏔️🐑🎯', answer: 'georgien', hint: 'Gebirge und Bogenschießen' },
+                { emojis: '🏝️🌞🍹', answer: 'jamaika', hint: 'Reggae und Strände' },
+                { emojis: '🏞️⛷️🏰', answer: 'norwegen', hint: 'Fjorde und Wintersport' },
+                { emojis: '🏜️🕌🐫', answer: 'jemen', hint: 'Wüste und alte Städte' },
+                { emojis: '🌾🐴🎵', answer: 'uzbekistan', hint: 'Seidenstraße und Kultur' },
+                { emojis: '🐒🌴🍌', answer: 'suriname', hint: 'Dschungel und tropische Früchte' },
+                { emojis: '🏰🍺⚽', answer: 'tschechien', hint: 'Bier und Fußball' },
+                { emojis: '🌊🌞🐠', answer: 'bahamas', hint: 'Karibische Inseln' },
+                { emojis: '🏔️🐐🕉️', answer: 'nepal', hint: 'Himalaya und Spiritualität' },
+                { emojis: '🏜️🐪🎶', answer: 'mauretanien', hint: 'Wüste und Musik' },
+                { emojis: '🏝️🐬🌞', answer: 'fidschi', hint: 'Südseeinseln und Ozean' },
+                { emojis: '🍣🍱🎏', answer: 'japan', hint: 'Sushi und Tradition' },
+                { emojis: '🐴🏜️🌞', answer: 'mongolei', hint: 'Nomaden und Steppe' },
+                { emojis: '🏝️🌴🌺', answer: 'seychellen', hint: 'Inselparadies' },
+                { emojis: '🌿🐘🎉', answer: 'sri lanka', hint: 'Tee und Kultur' },
+                { emojis: '🍞🧀🏰', answer: 'frankreich', hint: 'Wein, Käse und Burgen' },
+                { emojis: '🍝🍷🏛️', answer: 'italien', hint: 'Pasta und antike Geschichte' },
+                { emojis: '🐨🦘🏞️', answer: 'australien', hint: 'Wildtiere und Outback' },
+                { emojis: '🏯🎎🍣', answer: 'südkorea', hint: 'Tradition und Moderne' },
+                { emojis: '🌵🐍🎸', answer: 'mexiko', hint: 'Kakteen und Mariachi' },
+                { emojis: '🏞️🍁🏒', answer: 'kanada', hint: 'Natur und Eishockey' },
+                { emojis: '🕌🐪🏜️', answer: 'saudi-arabien', hint: 'Wüste und Religion' },
+                { emojis: '🏝️🌞🐦', answer: 'seychellen', hint: 'Inselparadies' },
+                { emojis: '🍷🏰🎭', answer: 'spanien', hint: 'Wein, Burgen und Flamenco' },
+                { emojis: '🏞️🐘🌳', answer: 'botswana', hint: 'Safari und Natur' },
+                { emojis: '🍔🏈🗽', answer: 'usa', hint: 'Fast Food, Football und Freiheit' },
+                { emojis: '🏔️🐻❄️', answer: 'russland', hint: 'Kälte und Bären' },
+                { emojis: '🏰🍺🌲', answer: 'deutschland', hint: 'Burgen, Bier und Wald' },
+                { emojis: '🐼🎋🏯', answer: 'china', hint: 'Pandas und Kultur' },
+                { emojis: '🏰⚽🍺', answer: 'england', hint: 'Fußball und Tradition' },
+                { emojis: '🍛🐘🎉', answer: 'indien', hint: 'Gewürze und Kultur' },
+                { emojis: '🍞🥐🎨', answer: 'frankreich', hint: 'Croissants und Kunst' },
+                { emojis: '🏰🎻🍷', answer: 'österreich', hint: 'Musik und Wein' },
+                { emojis: '🏝️🏄‍♂️🌞', answer: 'hawaii', hint: 'Surfen und Sonne' },
+                { emojis: '🏔️⛷️❄️', answer: 'schweiz', hint: 'Alpen und Wintersport' },
+                { emojis: '🌽🐂🎸', answer: 'argentinien', hint: 'Steak und Tango' },
+                { emojis: '🐪🏜️🕌', answer: 'marokko', hint: 'Wüste und Basare' },
+                { emojis: '🏞️🐒🌴', answer: 'ghana', hint: 'Regenwald und Kultur' },
+                { emojis: '🏔️🎿❄️', answer: 'norwegen', hint: 'Fjorde und Wintersport' },
+                { emojis: '🏝️🐠🌞', answer: 'malaysia', hint: 'Tropische Inseln' },
+                { emojis: '🍣🏯🎌', answer: 'japan', hint: 'Sushi und Tradition' },
+                { emojis: '🏰🍺🎶', answer: 'belgien', hint: 'Bier und Musik' },
+                { emojis: '🏞️🛶🐻', answer: 'kanada', hint: 'Wälder und Wildnis' },
+                { emojis: '🏰🐎🏇', answer: 'ukraine', hint: 'Burgen und Pferde' },
+                { emojis: '🏜️🐪🕌', answer: 'jemen', hint: 'Wüstenlandschaft' },
+                { emojis: '🏝️🌞🌊', answer: 'dominikanische republik', hint: 'Strände und Sonne' },
+                { emojis: '🏞️🎿🏰', answer: 'tschechien', hint: 'Burgen und Wintersport' },
+                { emojis: '🏝️🌺🐠', answer: 'palau', hint: 'Inselparadies im Pazifik' },
+                { emojis: '🏜️🐪🌞', answer: 'palästina', hint: 'Geschichte und Kultur' },
+                { emojis: '🏔️🎶🏕️', answer: 'kurdistan', hint: 'Berge und Musik' }
+                ],
+
+            animes: [
+                { emojis: '🛡️⚔️🦇', answer: 'berserk', hint: 'Düstere mittelalterliche Fantasy' },
+                { emojis: '🐉👊💥', answer: 'dragon ball', hint: 'Legendäre Kämpfe und Superkräfte' },
+                { emojis: '🍜🍥🍥', answer: 'naruto', hint: 'Ninja und Ramen' },
+                { emojis: '👹🔥🗡️', answer: 'demon slayer', hint: 'Dämonenjagd mit Katana' },
+                { emojis: '🦸‍♂️📚🏫', answer: 'my hero academia', hint: 'Superhelden-Ausbildung' },
+                { emojis: '🕵️‍♂️🔍🥽', answer: 'detective conan', hint: 'Kleiner Meisterdetektiv' },
+                { emojis: '🏴‍☠️🗺️⚓', answer: 'one piece', hint: 'Piraten und Schatzsuche' },
+                { emojis: '🧟‍♂️🚶‍♂️⚔️', answer: 'tokyo ghoul', hint: 'Halb-Mensch, halb-Monster' },
+                { emojis: '🕹️🎮🛡️', answer: 'sword art online', hint: 'Gefangen im VR-Game' },
+                { emojis: '👑⚔️🐉', answer: 'fate stay night', hint: 'Magische Kriege' },
+                { emojis: '👩‍🎤🎸🎶', answer: 'k-on', hint: 'Schulband und Freundschaft' },
+                { emojis: '🏰🧙‍♂️⚡', answer: 'fullmetal alchemist', hint: 'Alchemie und Abenteuer' },
+                { emojis: '🌙👧🦸‍♀️', answer: 'sailor moon', hint: 'Magische Kriegerinnen' },
+                { emojis: '🏫🦸‍♂️🔥', answer: 'mob psycho 100', hint: 'Psychokinetische Kräfte' },
+                { emojis: '🤖🚀🌌', answer: 'neon genesis evangelion', hint: 'Mechas und Apokalypse' },
+                { emojis: '🎤🎹💔', answer: 'your lie in april', hint: 'Musik und Tragödie' },
+                { emojis: '🏀🔥🎯', answer: 'kuroko no basket', hint: 'Basketball-Talent' },
+                { emojis: '🦊🌀👦', answer: 'naruto shippuden', hint: 'Ninja-Action Fortsetzung' },
+                { emojis: '🦁👑🐾', answer: 'attack on titan', hint: 'Menschheit vs Titanen' },
+                { emojis: '👓🧙‍♂️🕊️', answer: 'hunter x hunter', hint: 'Jagd nach Abenteuern' },
+                { emojis: '🕶️🔫🧓', answer: 'sakamoto days', hint: 'Ehemaliger Auftragskiller & Familienleben' },
+                { emojis: '🐰👧📚', answer: 'bunny girl senpai', hint: 'Mädchen im Hasenkostüm' },
+                { emojis: '🌸💐🌺', answer: 'the bloom flower', hint: 'Romantische Blumenmetapher' },
+                { emojis: '🥊👊💥', answer: 'hajime no ippo', hint: 'Boxen und Durchhaltevermögen' },
+                { emojis: '🤖🔧⚙️', answer: 'gachiakuta', hint: 'Mechanische Kämpfe' },
+                { emojis: '🎭👻🕰️', answer: 'jujutsu kaisen', hint: 'Flüche und Magie' },
+                { emojis: '🦸‍♀️👨‍🎤🎤', answer: 'dorohedoro', hint: 'Düstere Fantasy & Magie' },
+                { emojis: '🦊🔥💨', answer: 'kemono friends', hint: 'Tier-Mensch Hybriden' },
+                { emojis: '⚽👊🔥', answer: 'blue lock', hint: 'Fußball-Wettbewerb' },
+                { emojis: '🧙‍♂️🧙‍♀️📚', answer: 'mushoku tensei', hint: 'Wiedergeburt und Magie' },
+                { emojis: '🚲👧🌸', answer: 'a silent voice', hint: 'Mädchen mit Hörproblemen' },
+                { emojis: '🎩🎪🐘', answer: 'pandora hearts', hint: 'Geheimnisse und Fantasie' },
+                { emojis: '🛡️🗡️🐉', answer: 'vinland saga', hint: 'Wikinger-Epos' },
+                { emojis: '🎮🕹️👫', answer: 'no game no life', hint: 'Brüder & Spielewelt' },
+                { emojis: '👩‍🎤👑🎤', answer: 'given', hint: 'Musik und Gefühle' },
+                { emojis: '🏫🎤🎸', answer: 'angel beats', hint: 'Jugend im Jenseits' },
+                { emojis: '👽🚀🛸', answer: 'space dandy', hint: 'Weltraum & Humor' },
+                { emojis: '🐍🥋🦊', answer: 'naruto', hint: 'Ninja & Fuchsgeist' },
+                { emojis: '🐉🔥👊', answer: 'one punch man', hint: 'Held mit einem Schlag' },
+                { emojis: '🌊🐠🤿', answer: 'free!', hint: 'Schwimmen & Freundschaft' },
+                { emojis: '🧟‍♂️🔪💥', answer: 'chainsaw man', hint: 'Kettensäge & Dämonen' },
+                { emojis: '🧙‍♀️🧹🌟', answer: 'little witch academia', hint: 'Magische Schule' },
+                { emojis: '🎩🐱✨', answer: 'black cat', hint: 'Dieb und Abenteuer' },
+                { emojis: '🏠👁️🔍', answer: 'spy x family', hint: 'Spion-Familie und Gedankenleserin' },
+                { emojis: '🎮👾🕹️', answer: 'cyberpunk edgerunners', hint: 'Futuristische Hacker-Geschichte' },
+                { emojis: '🧛‍♀️🩸👹', answer: 'hells paradise', hint: 'Gefangene auf mysteriöser Insel' },
+                { emojis: '🏫💀📚', answer: 'classroom of the elite', hint: 'Elite-Schule mit Geheimnissen' },
+                { emojis: '🤖⚡🔥', answer: 'ranking of kings', hint: 'Kleiner Prinz, große Träume' },
+                { emojis: '🌟⚡👦', answer: 'dragon ball z', hint: 'Saiyajin-Krieger Fortsetzung' },
+                { emojis: '👻🔫💀', answer: 'ghost in the shell', hint: 'Cyborg-Polizistin' },
+                { emojis: '🚗🏁💨', answer: 'initial d', hint: 'Straßenrennen in den Bergen' },
+                { emojis: '🤖⚔️🌃', answer: 'akira', hint: 'Psychokinetische Apokalypse' },
+                { emojis: '🎹🎶💫', answer: 'cowboy bebop', hint: 'Weltraum-Kopfgeldjäger' },
+                { emojis: '👊🥋🐉', answer: 'street fighter', hint: 'Kampfturniere weltweit' },
+                { emojis: '🌸👘⚔️', answer: 'samurai champloo', hint: 'Hip-Hop trifft Samurai' },
+                { emojis: '🏫👻😱', answer: 'another', hint: 'Verfluchte Schulklasse' },
+                { emojis: '🎪🃏🎭', answer: 'death note', hint: 'Tödliches Notizbuch' },
+                { emojis: '⚗️🧪💀', answer: 'dr stone', hint: 'Wissenschaft rettet die Welt' },
+                { emojis: '🏐🔥👥', answer: 'haikyuu', hint: 'Volleyball-Leidenschaft' },
+                { emojis: '👨‍🍳🍳🔥', answer: 'food wars', hint: 'Kulinarische Schlachten' },
+                { emojis: '🎯🏹⚔️', answer: 'tower of god', hint: 'Turm der Prüfungen' },
+                { emojis: '🌊⛵🏴‍☠️', answer: 'grand blue', hint: 'Tauchen und Studium' },
+                { emojis: '🎪🤡👑', answer: 'black clover', hint: 'Magieloser wird Magiekönig' },
+                { emojis: '🔮✨🌟', answer: 'made in abyss', hint: 'Gefährlicher Abgrund-Abstieg' },
+                { emojis: '🍀🎲🎰', answer: 'kakegurui', hint: 'Glücksspiel-Schule' },
+                { emojis: '🏃‍♂️💨⚡', answer: 'run with the wind', hint: 'Universitäts-Marathonteam' },
+                { emojis: '👘🦊⛩️', answer: 'inuyasha', hint: 'Halbdämon und Zeitreise' }
+                ]
+
+        };
+
+        let currentGame = null;
+        let currentQuestion = null;
+        let currentStreak = 0;
+        let currentLives = 3;
+        let hintUsed = false;
+        let gameStats = JSON.parse(localStorage.getItem('emojiQuestStats')) || {
+            bestStreak: 0,
+            gamesPlayed: 0,
+            correctAnswers: 0,
+            profileImage: null
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createBackgroundAnimation();
+            updateStatsDisplay();
+            loadProfileImage();
+        });
+
+        function createBackgroundAnimation() {
+            const bgAnimation = document.getElementById('bgAnimation');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'bg-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                bgAnimation.appendChild(particle);
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('bestStreak').textContent = gameStats.bestStreak;
+            document.getElementById('gamesPlayed').textContent = gameStats.gamesPlayed;
+            document.getElementById('currentStreak').textContent = currentStreak;
+            
+            const successRate = gameStats.gamesPlayed > 0 ? 
+                Math.round((gameStats.correctAnswers / gameStats.gamesPlayed) * 100) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        function updateLivesDisplay() {
+            for (let i = 1; i <= 3; i++) {
+                const heart = document.getElementById(`heart${i}`);
+                if (i <= currentLives) {
+                    heart.className = 'heart';
+                } else {
+                    heart.className = 'heart lost';
+                }
+            }
+        }
+
+        function gainLife() {
+            if (currentLives < 3) {
+                currentLives++;
+                const heart = document.getElementById(`heart${currentLives}`);
+                heart.className = 'heart gained';
+                setTimeout(() => {
+                    heart.className = 'heart';
+                }, 600);
+                showResult('💖 Extra Leben erhalten! (+1 Leben)', true);
+            }
+        }
+
+        function loseLife() {
+            if (currentLives > 0) {
+                const heart = document.getElementById(`heart${currentLives}`);
+                heart.className = 'heart lost';
+                currentLives--;
+                updateLivesDisplay();
+                
+                if (currentLives === 0) {
+                    gameOver();
+                }
+            }
+        }
+
+        function gameOver() {
+            document.getElementById('finalStreak').textContent = currentStreak;
+            document.getElementById('gameOver').className = 'game-over show';
+            
+            // Update final stats
+            gameStats.gamesPlayed++;
+            if (currentStreak > gameStats.bestStreak) {
+                gameStats.bestStreak = currentStreak;
+            }
+            saveStats();
+            updateStatsDisplay();
+        }
+
+        function restartGame() {
+            currentLives = 3;
+            currentStreak = 0;
+            hintUsed = false;
+            document.getElementById('gameOver').className = 'game-over';
+            updateLivesDisplay();
+            updateStatsDisplay();
+            loadNewQuestion();
+        }
+
+        function loadProfileImage() {
+            if (gameStats.profileImage) {
+                const profileImg = document.getElementById('profileImage');
+                const profileIcon = document.getElementById('profileIcon');
+                profileImg.src = gameStats.profileImage;
+                profileImg.style.display = 'block';
+                profileIcon.style.display = 'none';
+            }
+        }
+
+        function uploadProfile() {
+            document.getElementById('profileUpload').click();
+        }
+
+        function handleProfileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const profileImg = document.getElementById('profileImage');
+                    const profileIcon = document.getElementById('profileIcon');
+                    
+                    gameStats.profileImage = e.target.result;
+                    profileImg.src = e.target.result;
+                    profileImg.style.display = 'block';
+                    profileIcon.style.display = 'none';
+                    
+                    saveStats();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function normalizeAnswer(answer) {
+            return answer.toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/ä/g, 'ae')
+                .replace(/ö/g, 'oe')
+                .replace(/ü/g, 'ue')
+                .replace(/ß/g, 'ss');
+        }
+
+        function startGame(gameType) {
+            currentGame = gameType;
+            currentLives = 3;
+            currentStreak = 0;
+            hintUsed = false;
+            document.getElementById('homepage').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('gameOver').className = 'game-over';
+            updateLivesDisplay();
+            updateStatsDisplay();
+            loadNewQuestion();
+        }
+
+        function loadNewQuestion() {
+            const questions = gameData[currentGame];
+            currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+            
+            document.getElementById('emojiDisplay').textContent = currentQuestion.emojis;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('result').className = 'result';
+            document.getElementById('result').textContent = '';
+            
+            // Animate emoji
+            const emojiDisplay = document.getElementById('emojiDisplay');
+            emojiDisplay.style.animation = 'none';
+            setTimeout(() => {
+                emojiDisplay.style.animation = 'bounceIn 0.8s ease';
+            }, 10);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                submitAnswer();
+            }
+        }
+
+        function submitAnswer() {
+            const userAnswer = normalizeAnswer(document.getElementById('answerInput').value.trim());
+            const correctAnswer = normalizeAnswer(currentQuestion.answer);
+            
+            if (userAnswer === '') {
+                showResult('Bitte gib eine Antwort ein!', false);
+                return;
+            }
+            
+            if (userAnswer === correctAnswer) {
+                currentStreak++;
+                gameStats.correctAnswers++;
+                const points = hintUsed ? 50 : 100;
+                showResult(`🎉 Richtig! +${points} Punkte`, true);
+                
+                // Extra Leben alle 5 Streak
+                if (currentStreak % 5 === 0 && currentStreak > 0) {
+                    setTimeout(() => {
+                        gainLife();
+                    }, 1000);
+                }
+                
+                if (currentStreak > gameStats.bestStreak) {
+                    gameStats.bestStreak = currentStreak;
+                }
+                
+                setTimeout(() => {
+                    if (currentLives > 0) {  // Nur weitermachen wenn noch Leben
+                        loadNewQuestion();
+                        hintUsed = false;
+                    }
+                }, 2500);
+            } else {
+                showResult(`❌ Falsch! Die Antwort war: ${currentQuestion.answer}`, false);
+                loseLife();
+                
+                if (currentLives > 0) {
+                    setTimeout(() => {
+                        loadNewQuestion();
+                        hintUsed = false;
+                    }, 3000);
+                } else {
+                    // Game Over wird durch loseLife() ausgelöst
+                }
+            }
+            
+            updateStatsDisplay();
+            saveStats();
+        }
+
+        function getHint() {
+            if (hintUsed) {
+                showResult('Du hast bereits einen Tipp verwendet!', false);
+                return;
+            }
+            
+            hintUsed = true;
+            showResult(`💡 Tipp: ${currentQuestion.hint}`, true);
+        }
+
+        function showResult(message, isCorrect) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${isCorrect ? 'correct' : 'incorrect'} show`;
+        }
+
+        function goHome() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('homepage').style.display = 'block';
+            currentGame = null;
+            currentStreak = 0;
+            currentLives = 3;
+            updateStatsDisplay();
+        }
+
+        function saveStats() {
+            localStorage.setItem('emojiQuestStats', JSON.stringify(gameStats));
+        }
+
+        // Mobile Optimization
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('SW registered: ', registration);
+                }).catch(function(registrationError) {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
