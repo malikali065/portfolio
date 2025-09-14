@@ -598,11 +598,11 @@
         
         <div class="stats">
             <div class="stat">
-                <span class="stat-number" data-count="6">0</span>
+                <span class="stat-number" data-count="7">0</span>
                 <span class="stat-label">Spiele</span>
             </div>
             <div class="stat">
-                <span class="stat-number" data-count="1337">0</span>
+                <span class="stat-number" id="totalPlayersCount">0</span>
                 <span class="stat-label">Spieler</span>
             </div>
             <div class="stat">
@@ -651,7 +651,7 @@
             {
                 title: 'Wordle',
                 description: 'Das beliebte Wortratespiel - unbegrenzt spielbar!',
-                emoji: '📝',
+                emoji: '🔤',
                 category: 'puzzle',
                 link: 'wordle.html',
                 playCount: 523,
@@ -710,6 +710,15 @@
                 link: 'guessbyemoji.html',
                 playCount: 219,
                 isNew: true
+            },
+            {
+                title: 'Agar.io',
+                description: 'Eine billige Kopie von Agar.io!',
+                emoji: '💥',
+                category: 'classic',
+                link: 'agar.html',
+                playCount: 829,
+                isNew: true
             }
         ];
         
@@ -726,6 +735,7 @@
         window.addEventListener('load', () => {
             setTimeout(() => {
                 loader.classList.add('hidden');
+                updateTotalPlayers();
                 animateStats();
             }, 1000);
         });
@@ -764,6 +774,13 @@
             localStorage.setItem('theme', newTheme);
             themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
         });
+        
+        // Update Total Players Count
+        function updateTotalPlayers() {
+            const totalPlayers = games.reduce((sum, game) => sum + game.playCount, 0);
+            const totalPlayersElement = document.getElementById('totalPlayersCount');
+            totalPlayersElement.dataset.count = totalPlayers;
+        }
         
         // Render Games
         function renderGames(filter = 'all') {
