@@ -288,7 +288,10 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
-        
+        .filter-btn .cat {
+    color: var(--text);
+    transition: color 0.3s ease;
+}
         .filter-buttons {
             display: flex;
             gap: 10px;
@@ -598,7 +601,7 @@
         
         <div class="stats">
             <div class="stat">
-                <span class="stat-number" data-count="7">0</span>
+                <span class="stat-number" id="totalGamesCount">0</span>
                 <span class="stat-label">Spiele</span>
             </div>
             <div class="stat">
@@ -617,13 +620,14 @@
         <div class="section-header">
             <h2 class="section-title">
                 Alle Spiele
-                <span class="new-badge">2 NEU!</span>
+                <span class="new-badge" id="newGamesBadge">NEU!</span>
             </h2>
             <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">Alle</button>
-                <button class="filter-btn" data-filter="classic">Klassiker</button>
-                <button class="filter-btn" data-filter="puzzle">Rätsel</button>
-                <button class="filter-btn" data-filter="social">Sozial</button>
+                <button class="filter-btn active" data-filter="all"><p class="cat">ALLE</p></button>
+                <button class="filter-btn" data-filter="classic"><p class="cat">Klassiker</button>
+                <button class="filter-btn" data-filter="puzzle"><p class="cat">Rätsel</button>
+                <button class="filter-btn" data-filter="social"><p class="cat">Sozial</button>
+                <button class="filter-btn" data-filter="io"><p class="cat">IO</button>
             </div>
         </div>
         
@@ -700,14 +704,14 @@
                 category: 'classic',
                 link: 'cps.html',
                 playCount: 167,
-                isNew: true
+                isNew: false
             },
             {
                 title: 'Errate durch Emojis',
                 description: 'Teste deine Imagination!',
                 emoji: '🤔',
-                category: 'classic',
-                link: 'guessbyemoji.html',
+                category: 'puzzle',
+                link: 'guessbyemojis.html',
                 playCount: 219,
                 isNew: true
             },
@@ -715,9 +719,36 @@
                 title: 'Agar.io',
                 description: 'Eine billige Kopie von Agar.io!',
                 emoji: '💥',
-                category: 'classic',
+                category: 'io',
                 link: 'agar.html',
                 playCount: 829,
+                isNew: true
+            },
+            {
+                title: 'Wordfall',
+                description: 'Tippe das Wort ein bevor es den Boden erreicht!',
+                emoji: '✨',
+                category: 'classic',
+                link: 'word.html',
+                playCount: 829,
+                isNew: true
+            },
+            {
+                title: '2048',
+                description: 'Eine billige Kopie von 2048',
+                emoji: '💯',
+                category: 'classic',
+                link: '2048.html',
+                playCount: 982,
+                isNew: true
+            },
+            {
+                title: 'Slither.io',
+                description: 'Eine billige Kopie von slither.io',
+                emoji: '🐍',
+                category: 'io',
+                link: 'slither.html',
+                playCount: 210,
                 isNew: true
             }
         ];
@@ -735,7 +766,7 @@
         window.addEventListener('load', () => {
             setTimeout(() => {
                 loader.classList.add('hidden');
-                updateTotalPlayers();
+                updateStats();
                 animateStats();
             }, 1000);
         });
@@ -775,11 +806,28 @@
             themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
         });
         
-        // Update Total Players Count
-        function updateTotalPlayers() {
+        // Update Stats automatically
+        function updateStats() {
+            // Total Games Count
+            const totalGames = games.length;
+            const totalGamesElement = document.getElementById('totalGamesCount');
+            totalGamesElement.dataset.count = totalGames;
+            
+            // Total Players Count
             const totalPlayers = games.reduce((sum, game) => sum + game.playCount, 0);
             const totalPlayersElement = document.getElementById('totalPlayersCount');
             totalPlayersElement.dataset.count = totalPlayers;
+            
+            // New Games Badge
+            const newGamesCount = games.filter(game => game.isNew).length;
+            const newBadge = document.getElementById('newGamesBadge');
+            
+            if (newGamesCount > 0) {
+                newBadge.textContent = `${newGamesCount} NEU!`;
+                newBadge.style.display = 'inline-block';
+            } else {
+                newBadge.style.display = 'none';
+            }
         }
         
         // Render Games
@@ -821,7 +869,8 @@
             const names = {
                 'classic': 'Klassiker',
                 'puzzle': 'Rätsel',
-                'social': 'Sozial'
+                'social': 'Sozial',
+                'io':'IO'
             };
             return names[category] || category;
         }
@@ -849,16 +898,24 @@
             const statNumbers = document.querySelectorAll('.stat-number');
             
             statNumbers.forEach(stat => {
-                const target = parseInt(stat.dataset.count);
-                let current = 0;
-                const increment = target / 50;
+                const target = stat.dataset.count;
+                let currentVal = 0;
+                
+                // Handle special case for "24/7"
+                if (target === "24/7") {
+                    stat.textContent = "24/7";
+                    return;
+                }
+                
+                const targetNum = parseInt(target);
+                const increment = targetNum / 50;
                 const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        current = target;
+                    currentVal += increment;
+                    if (currentVal >= targetNum) {
+                        currentVal = targetNum;
                         clearInterval(timer);
                     }
-                    stat.textContent = Math.floor(current);
+                    stat.textContent = Math.floor(currentVal);
                 }, 30);
             });
         }

@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slither.io Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #2c2c2c;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            color: white;
+        }
+
+        canvas {
+            background: linear-gradient(45deg, #0f0f23, #1a1a2e);
+            display: block;
+            cursor: none;
+        }
+
+        .ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            font-size: 14px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .leaderboard {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .start-screen h1 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            color: #00ff88;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+        }
+
+        .start-screen input {
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-align: center;
+            outline: none;
+        }
+
+        .start-screen button {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .start-screen button:hover {
+            background: #00dd77;
+            transform: translateY(-2px);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 300;
+            display: none;
+        }
+
+        .minimap {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .boost-meter {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            width: 200px;
+            height: 10px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .boost-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffff44, #44ff44);
+            border-radius: 4px;
+            transition: width 0.1s;
+        }
+    </style>
+</head>
+<body>
+    <div class="start-screen" id="startScreen">
+        <h1>SLITHER.IO</h1>
+        <input type="text" id="playerName" placeholder="Enter your name" maxlength="15">
+        <button onclick="startGame()">Play</button>
+    </div>
+
+    <div class="ui">
+        <div>Length: <span id="length">3</span></div>
+        <div>Score: <span id="score">0</span></div>
+    </div>
+
+    <div class="controls">
+        <div>Mouse: Steer | Space/Click: Boost | Eat orbs to grow!</div>
+    </div>
+
+    <div class="boost-meter">
+        <div class="boost-fill" id="boostFill" style="width: 100%;"></div>
+    </div>
+
+    <div class="leaderboard">
+        <h3>Leaderboard</h3>
+        <div id="leaderboardList"></div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+    <canvas id="minimapCanvas" class="minimap"></canvas>
+
+    <div class="game-over" id="gameOver">
+        <h2>Game Over!</h2>
+        <p>Final Length: <span id="finalScore">0</span></p>
+        <button onclick="restartGame()">Play Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const minimapCanvas = document.getElementById('minimapCanvas');
+        const minimapCtx = minimapCanvas.getContext('2d');
+
+        // Game settings
+        const WORLD_WIDTH = 6000;
+        const WORLD_HEIGHT = 6000;
+        const FOOD_COUNT = 1200;
+        const BOT_COUNT = 12;
+        const SEGMENT_SIZE = 12;
+        const BASE_SPEED = 4;
+
+        // Game state
+        let gameRunning = false;
+        let player = null;
+        let food = [];
+        let bots = [];
+        let camera = { x: 0, y: 0 };
+        let mouse = { x: 0, y: 0 };
+        let boostActive = false;
+        let boostEnergy = 100;
+
+        // Bot names
+        const botNames = ['Viper', 'Cobra', 'Python', 'Anaconda', 'Mamba', 'Boa', 'Adder', 'Serpent', 'Naga', 'Basilisk', 'Hydra', 'Ouroboros'];
+
+        // Resize canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            minimapCanvas.width = 150;
+            minimapCanvas.height = 150;
+        }
+
+        // Snake class
+        class Snake {
+            constructor(name, x, y, color, isPlayer = false) {
+                this.name = name;
+                this.isPlayer = isPlayer;
+                this.segments = [];
+                this.color = color;
+                this.angle = Math.random() * Math.PI * 2;
+                this.speed = BASE_SPEED;
+                this.targetAngle = this.angle;
+                
+                // Initialize with 3 segments
+                for (let i = 0; i < 3; i++) {
+                    this.segments.push({
+                        x: x - i * SEGMENT_SIZE,
+                        y: y,
+                    });
+                }
+            }
+
+            get length() {
+                return this.segments.length;
+            }
+
+            get head() {
+                return this.segments[0];
+            }
+
+            update() {
+                if (this.isPlayer) {
+                    this.updatePlayer();
+                } else {
+                    this.updateBot();
+                }
+
+                this.moveSegments();
+                this.keepInBounds();
+            }
+
+            updatePlayer() {
+                // Calculate angle to mouse
+                const dx = mouse.x - canvas.width / 2;
+                const dy = mouse.y - canvas.height / 2;
+                this.targetAngle = Math.atan2(dy, dx);
+
+                // Smooth turning
+                let angleDiff = this.targetAngle - this.angle;
+                if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+                if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+                
+                this.angle += angleDiff * 0.1;
+
+                // Handle boosting
+                if (boostActive && boostEnergy > 0) {
+                    this.speed = BASE_SPEED * 1.8;
+                    boostEnergy -= 1.5;
+                    
+                    // Lose segments while boosting
+                    if (this.segments.length > 3 && Math.random() < 0.1) {
+                        this.segments.pop();
+                        // Create food where segment was lost
+                        const tail = this.segments[this.segments.length - 1];
+                        food.push(new Food(tail.x, tail.y, 2));
+                    }
+                } else {
+                    this.speed = BASE_SPEED;
+                    if (boostEnergy < 100) {
+                        boostEnergy += 0.3;
+                    }
+                }
+
+                boostEnergy = Math.max(0, Math.min(100, boostEnergy));
+                document.getElementById('boostFill').style.width = boostEnergy + '%';
+            }
+
+            updateBot() {
+                // Simple AI: look for nearby food
+                let closestFood = null;
+                let closestDist = Infinity;
+                
+                for (let f of food) {
+                    const dist = Math.sqrt((this.head.x - f.x) ** 2 + (this.head.y - f.y) ** 2);
+                    if (dist < closestDist && dist < 300) {
+                        closestFood = f;
+                        closestDist = dist;
+                    }
+                }
+
+                if (closestFood) {
+                    const dx = closestFood.x - this.head.x;
+                    const dy = closestFood.y - this.head.y;
+                    this.targetAngle = Math.atan2(dy, dx);
+                } else {
+                    // Random movement
+                    if (Math.random() < 0.02) {
+                        this.targetAngle += (Math.random() - 0.5) * 0.5;
+                    }
+                }
+
+                // Avoid boundaries
+                const margin = 200;
+                if (this.head.x < margin) this.targetAngle = 0;
+                if (this.head.x > WORLD_WIDTH - margin) this.targetAngle = Math.PI;
+                if (this.head.y < margin) this.targetAngle = Math.PI / 2;
+                if (this.head.y > WORLD_HEIGHT - margin) this.targetAngle = -Math.PI / 2;
+
+                // Smooth turning for bots
+                let angleDiff = this.targetAngle - this.angle;
+                if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+                if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+                
+                this.angle += angleDiff * 0.05;
+
+                this.speed = BASE_SPEED * 0.8;
+            }
+
+            moveSegments() {
+                // Move head
+                this.head.x += Math.cos(this.angle) * this.speed;
+                this.head.y += Math.sin(this.angle) * this.speed;
+
+                // Move body segments
+                for (let i = 1; i < this.segments.length; i++) {
+                    const prev = this.segments[i - 1];
+                    const curr = this.segments[i];
+                    
+                    const dx = prev.x - curr.x;
+                    const dy = prev.y - curr.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist > SEGMENT_SIZE) {
+                        const angle = Math.atan2(dy, dx);
+                        curr.x = prev.x - Math.cos(angle) * SEGMENT_SIZE;
+                        curr.y = prev.y - Math.sin(angle) * SEGMENT_SIZE;
+                    }
+                }
+            }
+
+            keepInBounds() {
+                if (this.head.x < 0) this.head.x = WORLD_WIDTH;
+                if (this.head.x > WORLD_WIDTH) this.head.x = 0;
+                if (this.head.y < 0) this.head.y = WORLD_HEIGHT;
+                if (this.head.y > WORLD_HEIGHT) this.head.y = 0;
+            }
+
+            grow(amount = 1) {
+                const tail = this.segments[this.segments.length - 1];
+                for (let i = 0; i < amount; i++) {
+                    this.segments.push({ x: tail.x, y: tail.y });
+                }
+            }
+
+            checkSelfCollision() {
+                for (let i = 4; i < this.segments.length; i++) {
+                    const segment = this.segments[i];
+                    const dist = Math.sqrt((this.head.x - segment.x) ** 2 + (this.head.y - segment.y) ** 2);
+                    if (dist < SEGMENT_SIZE) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            draw() {
+                // Calculate if snake is visible on screen
+                const minX = Math.min(...this.segments.map(s => s.x)) - camera.x;
+                const maxX = Math.max(...this.segments.map(s => s.x)) - camera.x;
+                const minY = Math.min(...this.segments.map(s => s.y)) - camera.y;
+                const maxY = Math.max(...this.segments.map(s => s.y)) - camera.y;
+
+                if (maxX < 0 || minX > canvas.width || maxY < 0 || minY > canvas.height) {
+                    return; // Skip drawing if not visible
+                }
+
+                // Draw segments from tail to head
+                for (let i = this.segments.length - 1; i >= 0; i--) {
+                    const segment = this.segments[i];
+                    const screenX = segment.x - camera.x;
+                    const screenY = segment.y - camera.y;
+                    
+                    const radius = i === 0 ? SEGMENT_SIZE * 1.2 : SEGMENT_SIZE * 0.9;
+                    
+                    // Body gradient
+                    const gradient = ctx.createRadialGradient(screenX, screenY, 0, screenX, screenY, radius);
+                    gradient.addColorStop(0, this.color);
+                    gradient.addColorStop(1, this.darkenColor(this.color, 0.3));
+                    
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, radius, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // Outline
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+
+                // Draw eyes on head
+                const head = this.segments[0];
+                const screenX = head.x - camera.x;
+                const screenY = head.y - camera.y;
+                
+                const eyeOffset = SEGMENT_SIZE * 0.6;
+                const eyeAngle1 = this.angle + 0.5;
+                const eyeAngle2 = this.angle - 0.5;
+                
+                // Left eye
+                ctx.beginPath();
+                ctx.arc(
+                    screenX + Math.cos(eyeAngle1) * eyeOffset,
+                    screenY + Math.sin(eyeAngle1) * eyeOffset,
+                    3, 0, Math.PI * 2
+                );
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                // Right eye
+                ctx.beginPath();
+                ctx.arc(
+                    screenX + Math.cos(eyeAngle2) * eyeOffset,
+                    screenY + Math.sin(eyeAngle2) * eyeOffset,
+                    3, 0, Math.PI * 2
+                );
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw name
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                ctx.strokeText(this.name, screenX, screenY - 25);
+                ctx.fillText(this.name, screenX, screenY - 25);
+            }
+
+            darkenColor(color, factor) {
+                // Simple color darkening
+                if (color.startsWith('#')) {
+                    const num = parseInt(color.slice(1), 16);
+                    const r = Math.floor((num >> 16) * (1 - factor));
+                    const g = Math.floor(((num >> 8) & 0x00FF) * (1 - factor));
+                    const b = Math.floor((num & 0x0000FF) * (1 - factor));
+                    return `rgb(${r}, ${g}, ${b})`;
+                }
+                return color;
+            }
+        }
+
+        // Food class
+        class Food {
+            constructor(x = null, y = null, value = null) {
+                this.x = x !== null ? x : Math.random() * WORLD_WIDTH;
+                this.y = y !== null ? y : Math.random() * WORLD_HEIGHT;
+                
+                if (value !== null) {
+                    this.value = value;
+                } else {
+                    const rand = Math.random();
+                    if (rand < 0.7) this.value = 1;
+                    else if (rand < 0.9) this.value = 2;
+                    else if (rand < 0.97) this.value = 3;
+                    else this.value = 5;
+                }
+                
+                this.radius = 3 + this.value * 2;
+                
+                // Color based on value
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7'];
+                this.color = colors[Math.min(this.value - 1, colors.length - 1)];
+                
+                // Animation
+                this.pulse = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.pulse += 0.1;
+            }
+
+            draw() {
+                const screenX = this.x - camera.x;
+                const screenY = this.y - camera.y;
+
+                // Only draw if on screen
+                if (screenX > -50 && screenX < canvas.width + 50 &&
+                    screenY > -50 && screenY < canvas.height + 50) {
+                    
+                    const pulseFactor = 1 + Math.sin(this.pulse) * 0.2;
+                    const drawRadius = this.radius * pulseFactor;
+                    
+                    // Glow effect
+                    const gradient = ctx.createRadialGradient(screenX, screenY, 0, screenX, screenY, drawRadius * 2);
+                    gradient.addColorStop(0, this.color);
+                    gradient.addColorStop(0.7, this.color + '88');
+                    gradient.addColorStop(1, 'transparent');
+                    
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, drawRadius * 2, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // Main orb
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, drawRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Value indicator for high-value food
+                    if (this.value > 1) {
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${Math.min(10, drawRadius)}px Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.fillText(this.value.toString(), screenX, screenY + 3);
+                    }
+                }
+            }
+        }
+
+        // Generate random colors
+        function randomColor() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#00d2d3', '#ff9ff3', '#54a0ff'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        // Initialize game
+        function initGame() {
+            // Create food
+            food = [];
+            for (let i = 0; i < FOOD_COUNT; i++) {
+                food.push(new Food());
+            }
+
+            // Create bots
+            bots = [];
+            for (let i = 0; i < BOT_COUNT; i++) {
+                const bot = new Snake(
+                    botNames[i % botNames.length],
+                    Math.random() * WORLD_WIDTH,
+                    Math.random() * WORLD_HEIGHT,
+                    randomColor(),
+                    false
+                );
+                // Give bots random starting length
+                bot.grow(Math.floor(Math.random() * 10) + 5);
+                bots.push(bot);
+            }
+        }
+
+        // Start game
+        function startGame() {
+            const name = document.getElementById('playerName').value || 'Anonymous';
+            document.getElementById('startScreen').style.display = 'none';
+            
+            player = new Snake(
+                name,
+                WORLD_WIDTH / 2,
+                WORLD_HEIGHT / 2,
+                '#00ff88',
+                true
+            );
+            
+            initGame();
+            gameRunning = true;
+            gameLoop();
+        }
+
+        // Check collisions
+        function checkCollisions() {
+            // Player vs food
+            for (let i = food.length - 1; i >= 0; i--) {
+                const f = food[i];
+                const dist = Math.sqrt((player.head.x - f.x) ** 2 + (player.head.y - f.y) ** 2);
+                
+                if (dist < SEGMENT_SIZE + f.radius) {
+                    food.splice(i, 1);
+                    player.grow(f.value);
+                    
+                    // Spawn new food
+                    food.push(new Food());
+                }
+            }
+
+            // Bots vs food
+            for (let bot of bots) {
+                for (let i = food.length - 1; i >= 0; i--) {
+                    const f = food[i];
+                    const dist = Math.sqrt((bot.head.x - f.x) ** 2 + (bot.head.y - f.y) ** 2);
+                    
+                    if (dist < SEGMENT_SIZE + f.radius) {
+                        food.splice(i, 1);
+                        bot.grow(f.value);
+                        
+                        // Spawn new food
+                        food.push(new Food());
+                        break;
+                    }
+                }
+            }
+
+            // Check self-collision for player
+            if (player.checkSelfCollision()) {
+                gameRunning = false;
+                document.getElementById('finalScore').textContent = player.length;
+                document.getElementById('gameOver').style.display = 'block';
+                return;
+            }
+
+            // Player vs bots collision
+            for (let bot of bots) {
+                for (let segment of bot.segments) {
+                    const dist = Math.sqrt((player.head.x - segment.x) ** 2 + (player.head.y - segment.y) ** 2);
+                    if (dist < SEGMENT_SIZE) {
+                        gameRunning = false;
+                        document.getElementById('finalScore').textContent = player.length;
+                        document.getElementById('gameOver').style.display = 'block';
+                        return;
+                    }
+                }
+            }
+
+            // Bots vs player collision (bots hit player)
+            for (let bot of bots) {
+                for (let segment of player.segments) {
+                    const dist = Math.sqrt((bot.head.x - segment.x) ** 2 + (bot.head.y - segment.y) ** 2);
+                    if (dist < SEGMENT_SIZE) {
+                        // Bot dies, drop food
+                        for (let i = 0; i < bot.length; i++) {
+                            const segment = bot.segments[i];
+                            food.push(new Food(segment.x, segment.y, 2));
+                        }
+                        
+                        // Respawn bot
+                        bot.segments = [];
+                        for (let i = 0; i < 3; i++) {
+                            bot.segments.push({
+                                x: Math.random() * WORLD_WIDTH,
+                                y: Math.random() * WORLD_HEIGHT,
+                            });
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Draw grid
+        function drawGrid() {
+            const gridSize = 50;
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+
+            const startX = Math.floor(camera.x / gridSize) * gridSize;
+            const startY = Math.floor(camera.y / gridSize) * gridSize;
+
+            for (let x = startX; x < camera.x + canvas.width + gridSize; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x - camera.x, 0);
+                ctx.lineTo(x - camera.x, canvas.height);
+                ctx.stroke();
+            }
+
+            for (let y = startY; y < camera.y + canvas.height + gridSize; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y - camera.y);
+                ctx.lineTo(canvas.width, y - camera.y);
+                ctx.stroke();
+            }
+        }
+
+        // Update leaderboard
+        function updateLeaderboard() {
+            const allSnakes = [player, ...bots].sort((a, b) => b.length - a.length);
+            const leaderboard = document.getElementById('leaderboardList');
+            
+            leaderboard.innerHTML = '';
+            for (let i = 0; i < Math.min(10, allSnakes.length); i++) {
+                const snake = allSnakes[i];
+                const div = document.createElement('div');
+                div.innerHTML = `${i + 1}. ${snake.name} (${snake.length})`;
+                div.style.color = snake.isPlayer ? '#00ff88' : '#fff';
+                leaderboard.appendChild(div);
+            }
+        }
+
+        // Draw minimap
+        function drawMinimap() {
+            minimapCtx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            minimapCtx.fillRect(0, 0, 150, 150);
+
+            const scaleX = 150 / WORLD_WIDTH;
+            const scaleY = 150 / WORLD_HEIGHT;
+
+            // Draw player
+            minimapCtx.strokeStyle = player.color;
+            minimapCtx.lineWidth = 2;
+            minimapCtx.beginPath();
+            minimapCtx.moveTo(player.segments[0].x * scaleX, player.segments[0].y * scaleY);
+            for (let segment of player.segments) {
+                minimapCtx.lineTo(segment.x * scaleX, segment.y * scaleY);
+            }
+            minimapCtx.stroke();
+
+            // Draw bots
+            for (let bot of bots) {
+                if (bot.length > 5) {
+                    minimapCtx.strokeStyle = bot.color;
+                    minimapCtx.lineWidth = 1;
+                    minimapCtx.beginPath();
+                    minimapCtx.moveTo(bot.segments[0].x * scaleX, bot.segments[0].y * scaleY);
+                    for (let segment of bot.segments) {
+                        minimapCtx.lineTo(segment.x * scaleX, segment.y * scaleY);
+                    }
+                    minimapCtx.stroke();
+                }
+            }
+        }
+
+        // Game loop
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update camera to follow player
+            camera.x = player.head.x - canvas.width / 2;
+            camera.y = player.head.y - canvas.height / 2;
+
+            // Draw grid
+            drawGrid();
+
+            // Update game objects
+            player.update();
+            for (let bot of bots) {
+                bot.update();
+            }
+            
+            for (let f of food) {
+                f.update();
+            }
+
+            // Check collisions
+            checkCollisions();
+
+            // Draw everything
+            for (let f of food) {
+                f.draw();
+            }
+
+            for (let bot of bots) {
+                bot.draw();
+            }
+
+            player.draw();
+
+            // Update UI
+            document.getElementById('length').textContent = player.length;
+            document.getElementById('score').textContent = (player.length - 3) * 10;
+
+            updateLeaderboard();
+            drawMinimap();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Restart game
+        function restartGame() {
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+            boostEnergy = 100;
+        }
+
+        // Event listeners
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Mouse controls
+        canvas.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        canvas.addEventListener('mousedown', () => {
+            if (gameRunning) boostActive = true;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            boostActive = false;
+        });
+
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ' ' && gameRunning) {
+                e.preventDefault();
+                boostActive = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === ' ') {
+                boostActive = false;
+            }
+        });
+
+        document.getElementById('playerName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startGame();
+            }
+        });
+
+        // Touch controls for mobile
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            mouse.x = touch.clientX;
+            mouse.y = touch.clientY;
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameRunning) boostActive = true;
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            boostActive = false;
+        });
+
+        // Prevent context menu on right click
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

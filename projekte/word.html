@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Challenge</title>
+    <style>
+        /* Reset und Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Landing Page Styles */
+        .landing-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00d4ff, #ff006e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .welcome-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .username-input {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            width: 300px;
+            max-width: 90vw;
+        }
+
+        .username-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .start-btn {
+            padding: 1rem 3rem;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .profile-icon {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #ff006e, #c4005a);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            animation: fadeInRight 1s ease-out 0.6s both;
+            z-index: 1000;
+        }
+
+        .profile-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90vw;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #ff006e;
+            transform: rotate(90deg);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #00d4ff, #ff006e);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .profile-username {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        /* Game Page Styles */
+        .game-page {
+            display: none;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .quit-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 0, 110, 0.2);
+            border: 2px solid rgba(255, 0, 110, 0.3);
+            border-radius: 25px;
+            color: #ff006e;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quit-btn:hover {
+            background: rgba(255, 0, 110, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 0, 110, 0.3);
+        }
+
+        .player-info {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            min-width: 100px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-box .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-box .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+
+        .game-area {
+            position: relative;
+            height: 70vh;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .word {
+            position: absolute;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            animation: fallDown linear;
+            cursor: default;
+            user-select: none;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .word.correct {
+            animation: correctWord 0.5s ease-out forwards;
+        }
+
+        .input-area {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .type-input {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: rgba(30, 30, 30, 0.95);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .type-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Game Over Modal */
+        .game-over-modal {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90vw;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .game-over-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ff006e;
+        }
+
+        .final-score {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #00d4ff;
+        }
+
+        .restart-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 1rem;
+        }
+
+        .home-btn {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: #e0e0e0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover, .home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fallDown {
+            from {
+                transform: translateY(-50px);
+            }
+            to {
+                transform: translateY(calc(70vh + 50px));
+            }
+        }
+
+        @keyframes correctWord {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .game-stats {
+                justify-content: center;
+            }
+            
+            .profile-icon {
+                bottom: 1rem;
+                right: 1rem;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Landing Page -->
+    <div class="landing-page" id="landingPage">
+        <h1 class="logo">⌨️ Typing Challenge</h1>
+        <p class="welcome-text">Teste deine Tippgeschwindigkeit!</p>
+        
+        <div class="input-container">
+            <input type="text" class="username-input" id="usernameInput" placeholder="Dein Benutzername" maxlength="20">
+            <button class="start-btn" id="startBtn" disabled>Spiel starten</button>
+        </div>
+        
+        <div class="profile-icon" id="profileIcon">👤</div>
+    </div>
+
+    <!-- Game Page -->
+    <div class="game-page" id="gamePage">
+        <div class="game-header">
+            <div class="header-left">
+                <div class="player-info">
+                    Spieler: <span id="playerName"></span>
+                </div>
+                <button class="quit-btn" id="quitBtn">Beenden</button>
+            </div>
+            <div class="game-stats">
+                <div class="stat-box">
+                    <div class="label">Score</div>
+                    <div class="value" id="currentScore">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">High Score</div>
+                    <div class="value" id="highScore">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Zeit</div>
+                    <div class="value" id="timer">0s</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Level</div>
+                    <div class="value" id="level">1</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-area" id="gameArea"></div>
+        
+        <div class="input-area">
+            <input type="text" class="type-input" id="typeInput" placeholder="Tippe die Wörter hier..." autocomplete="off">
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">×</button>
+            <div class="profile-avatar">👤</div>
+            <div class="profile-username" id="modalUsername">Benutzer</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="avgSpeed">0</div>
+                    <div class="stat-label">Ø Speed (WPM)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="peakSpeed">0</div>
+                    <div class="stat-label">Peak Speed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="gamesPlayed">0</div>
+                    <div class="stat-label">Spiele</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bestScore">0</div>
+                    <div class="stat-label">Highscore</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="gameOverModal">
+        <div class="game-over-modal">
+            <h2 class="game-over-title">Game Over!</h2>
+            <div class="final-score" id="finalScore">Score: 0</div>
+            <div>
+                <button class="restart-btn" id="restartBtn">Nochmal spielen</button>
+                <button class="home-btn" id="homeBtn">Zurück zum Start</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Globale Variablen
+        let gameState = {
+            isPlaying: false,
+            score: 0,
+            startTime: null,
+            words: [],
+            wordSpeed: 4000, // Startgeschwindigkeit für neue Wörter
+            fallSpeed: 10, // Fallgeschwindigkeit in Sekunden
+            username: '',
+            timer: 0,
+            timerInterval: null,
+            level: 1,
+            wordsPerLevel: 5,
+            wordsCompleted: 0,
+            maxActiveWords: 1 // Maximale Anzahl aktiver Wörter gleichzeitig
+        };
+
+        // Wortliste für das Spiel
+        const wordList = [
+            'Katze', 'Hund', 'Auto', 'Haus', 'Baum', 'Wasser', 'Feuer', 'Luft',
+            'Erde', 'Sonne', 'Mond', 'Stern', 'Blume', 'Vogel', 'Fisch', 'Berg',
+            'Meer', 'Fluss', 'Wind', 'Regen', 'Schnee', 'Eis', 'Licht', 'Schatten',
+            'Zeit', 'Raum', 'Musik', 'Tanz', 'Liebe', 'Freude', 'Glück', 'Träume',
+            'Hoffnung', 'Frieden', 'Stärke', 'Mut', 'Weisheit', 'Freiheit'
+        ];
+
+        // DOM Elemente
+        const landingPage = document.getElementById('landingPage');
+        const gamePage = document.getElementById('gamePage');
+        const usernameInput = document.getElementById('usernameInput');
+        const startBtn = document.getElementById('startBtn');
+        const profileIcon = document.getElementById('profileIcon');
+        const profileModal = document.getElementById('profileModal');
+        const modalClose = document.getElementById('modalClose');
+        const gameArea = document.getElementById('gameArea');
+        const typeInput = document.getElementById('typeInput');
+        const currentScore = document.getElementById('currentScore');
+        const highScore = document.getElementById('highScore');
+        const timer = document.getElementById('timer');
+        const playerName = document.getElementById('playerName');
+        const level = document.getElementById('level');
+        const quitBtn = document.getElementById('quitBtn');
+        const gameOverModal = document.getElementById('gameOverModal');
+        const finalScore = document.getElementById('finalScore');
+        const restartBtn = document.getElementById('restartBtn');
+        const homeBtn = document.getElementById('homeBtn');
+
+        // Initialisierung beim Laden der Seite
+        window.addEventListener('load', () => {
+            loadUserData();
+            updateHighScore();
+        });
+
+        // Event Listeners
+        usernameInput.addEventListener('input', (e) => {
+            const username = e.target.value.trim();
+            startBtn.disabled = username.length < 2;
+        });
+
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !startBtn.disabled) {
+                startGame();
+            }
+        });
+
+        startBtn.addEventListener('click', startGame);
+
+        profileIcon.addEventListener('click', () => {
+            showProfileModal();
+        });
+
+        modalClose.addEventListener('click', () => {
+            profileModal.classList.remove('active');
+        });
+
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                profileModal.classList.remove('active');
+            }
+        });
+
+        typeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkInput(e.target.value);
+            }
+        });
+
+        typeInput.addEventListener('input', (e) => {
+            // Visual feedback for partial matches
+            const input = e.target.value.trim().toLowerCase();
+            gameState.words.forEach(wordObj => {
+                const word = wordObj.text.toLowerCase();
+                if (word.startsWith(input) && input.length > 0) {
+                    wordObj.element.style.borderColor = '#00ff88';
+                    wordObj.element.style.borderWidth = '2px';
+                    wordObj.element.style.borderStyle = 'solid';
+                } else {
+                    wordObj.element.style.border = 'none';
+                }
+            });
+        });
+
+        restartBtn.addEventListener('click', () => {
+            gameOverModal.classList.remove('active');
+            startGameSession();
+        });
+
+        homeBtn.addEventListener('click', () => {
+            gameOverModal.classList.remove('active');
+            goHome();
+        });
+
+        quitBtn.addEventListener('click', () => {
+            if (gameState.isPlaying) {
+                endGame();
+            }
+        });
+
+        gameOverModal.addEventListener('click', (e) => {
+            if (e.target === gameOverModal) {
+                gameOverModal.classList.remove('active');
+                goHome();
+            }
+        });
+
+        // Funktionen
+        function loadUserData() {
+            const savedUsername = localStorage.getItem('typingChallenge_username');
+            if (savedUsername) {
+                usernameInput.value = savedUsername;
+                startBtn.disabled = false;
+            }
+        }
+
+        function saveUserData(username) {
+            localStorage.setItem('typingChallenge_username', username);
+        }
+
+        function getUserStats() {
+            const stats = localStorage.getItem('typingChallenge_stats');
+            return stats ? JSON.parse(stats) : {
+                avgSpeed: 0,
+                peakSpeed: 0,
+                gamesPlayed: 0,
+                bestScore: 0,
+                totalWords: 0,
+                totalTime: 0
+            };
+        }
+
+        function saveUserStats(newStats) {
+            localStorage.setItem('typingChallenge_stats', JSON.stringify(newStats));
+        }
+
+        function updateUserStats(gameScore, gameTime, wordsTyped) {
+            const stats = getUserStats();
+            const wpm = Math.round((wordsTyped / gameTime) * 60);
+            
+            stats.gamesPlayed += 1;
+            stats.totalWords += wordsTyped;
+            stats.totalTime += gameTime;
+            stats.avgSpeed = Math.round((stats.totalWords / stats.totalTime) * 60);
+            
+            if (wpm > stats.peakSpeed) {
+                stats.peakSpeed = wpm;
+            }
+            
+            if (gameScore > stats.bestScore) {
+                stats.bestScore = gameScore;
+            }
+            
+            saveUserStats(stats);
+        }
+
+        function showProfileModal() {
+            const username = usernameInput.value.trim() || 'Gast';
+            const stats = getUserStats();
+            
+            document.getElementById('modalUsername').textContent = username;
+            document.getElementById('avgSpeed').textContent = stats.avgSpeed;
+            document.getElementById('peakSpeed').textContent = stats.peakSpeed;
+            document.getElementById('gamesPlayed').textContent = stats.gamesPlayed;
+            document.getElementById('bestScore').textContent = stats.bestScore;
+            
+            profileModal.classList.add('active');
+        }
+
+        function updateHighScore() {
+            const stats = getUserStats();
+            highScore.textContent = stats.bestScore;
+        }
+
+        function startGame() {
+            const username = usernameInput.value.trim();
+            if (username.length < 2) return;
+            
+            gameState.username = username;
+            saveUserData(username);
+            playerName.textContent = username;
+            
+            landingPage.style.display = 'none';
+            gamePage.style.display = 'block';
+            
+            startGameSession();
+        }
+
+        function startGameSession() {
+            // Reset game state
+            gameState.isPlaying = true;
+            gameState.score = 0;
+            gameState.startTime = Date.now();
+            gameState.timer = 0;
+            gameState.words = [];
+            gameState.wordSpeed = 4000;
+            gameState.fallSpeed = 10;
+            gameState.level = 1;
+            gameState.wordsCompleted = 0;
+            gameState.maxActiveWords = 1;
+            
+            // Clear game area
+            gameArea.innerHTML = '';
+            typeInput.value = '';
+            typeInput.focus();
+            
+            // Update UI
+            currentScore.textContent = '0';
+            timer.textContent = '0s';
+            level.textContent = '1';
+            updateHighScore();
+            
+            // Start timer
+            gameState.timerInterval = setInterval(() => {
+                gameState.timer++;
+                timer.textContent = gameState.timer + 's';
+            }, 1000);
+            
+            // Start spawning words
+            spawnWordIfNeeded();
+        }
+
+        function spawnWord() {
+            if (!gameState.isPlaying) return;
+            
+            const word = wordList[Math.floor(Math.random() * wordList.length)];
+            const wordElement = document.createElement('div');
+            wordElement.className = 'word';
+            wordElement.textContent = word;
+            wordElement.style.left = Math.random() * (gameArea.clientWidth - 150) + 'px';
+            wordElement.style.animationDuration = gameState.fallSpeed + 's';
+            
+            gameArea.appendChild(wordElement);
+            gameState.words.push({
+                element: wordElement,
+                text: word,
+                id: Date.now() + Math.random()
+            });
+            
+            // Remove word when animation ends
+            setTimeout(() => {
+                if (wordElement.parentNode) {
+                    wordElement.remove();
+                    gameState.words = gameState.words.filter(w => w.element !== wordElement);
+                    
+                    // Check if game should end (word reached bottom)
+                    if (gameState.isPlaying) {
+                        endGame();
+                    }
+                }
+            }, gameState.fallSpeed * 1000);
+            
+            // Schedule next word spawn after delay
+            setTimeout(() => {
+                spawnWordIfNeeded();
+            }, gameState.wordSpeed);
+        }
+
+        function spawnWordIfNeeded() {
+            if (!gameState.isPlaying) return;
+            
+            // Only spawn if we have fewer than max active words
+            if (gameState.words.length < gameState.maxActiveWords) {
+                spawnWord();
+            } else {
+                // Check again after a short delay
+                setTimeout(spawnWordIfNeeded, 500);
+            }
+        }
+
+        function levelUp() {
+            gameState.level++;
+            level.textContent = gameState.level;
+            
+            // Increase difficulty
+            gameState.wordSpeed = Math.max(1500, gameState.wordSpeed - 300);
+            gameState.fallSpeed = Math.max(4, gameState.fallSpeed - 0.8);
+            
+            // Increase max active words every 3 levels
+            if (gameState.level % 3 === 0) {
+                gameState.maxActiveWords = Math.min(4, gameState.maxActiveWords + 1);
+            }
+            
+            // Reset words completed counter
+            gameState.wordsCompleted = 0;
+        }
+
+        function checkInput(input) {
+            if (!gameState.isPlaying || !input.trim()) return;
+            
+            const inputWord = input.trim().toLowerCase();
+            
+            // Check if input matches any falling word
+            for (let i = 0; i < gameState.words.length; i++) {
+                const wordObj = gameState.words[i];
+                if (wordObj.text.toLowerCase() === inputWord) {
+                    // Correct word typed!
+                    wordObj.element.classList.add('correct');
+                    gameState.score += 10 + (gameState.level * 2); // More points for higher levels
+                    currentScore.textContent = gameState.score;
+                    gameState.wordsCompleted++;
+                    
+                    // Remove word from array and DOM with smooth animation
+                    setTimeout(() => {
+                        if (wordObj.element.parentNode) {
+                            wordObj.element.remove();
+                        }
+                    }, 300);
+                    gameState.words.splice(i, 1);
+                    
+                    // Clear input and remove visual feedback
+                    typeInput.value = '';
+                    
+                    // Check for level up
+                    if (gameState.wordsCompleted >= gameState.wordsPerLevel) {
+                        levelUp();
+                    }
+                    
+                    // Spawn new word if needed
+                    setTimeout(() => {
+                        spawnWordIfNeeded();
+                    }, 200);
+                    
+                    break;
+                }
+            }
+        }
+
+        function endGame() {
+            gameState.isPlaying = false;
+            clearInterval(gameState.timerInterval);
+            
+            // Calculate stats
+            const gameTime = gameState.timer;
+            const wordsTyped = Math.floor(gameState.score / 10);
+            
+            // Update user stats
+            updateUserStats(gameState.score, gameTime, wordsTyped);
+            
+            // Show game over modal
+            finalScore.textContent = `Score: ${gameState.score}`;
+            gameOverModal.classList.add('active');
+            
+            // Clear remaining words
+            gameArea.innerHTML = '';
+            gameState.words = [];
+        }
+
+        function goHome() {
+            gamePage.style.display = 'none';
+            landingPage.style.display = 'flex';
+            typeInput.blur();
+            updateHighScore();
+        }
+
+        // Prevent game from running when not visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && gameState.isPlaying) {
+                endGame();
+            }
+        });
+    </script>
+</body>
+</html>
