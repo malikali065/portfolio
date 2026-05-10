@@ -4,7 +4,7 @@
 
 Welcome to the repository of my personal portfolio website. This project reflects my passion for clean design, interactive user experiences, and robust frontend architecture. It is built entirely without heavy frontend frameworks to ensure maximum performance and granular control over every animation.
 
-[**Live Demo**](https://your-live-link-here.com) ---
+[**Live Demo**](https://malikali065.github.io/portfolio) ---
 
 ## ✨ Key Features
 
